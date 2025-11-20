@@ -25,6 +25,25 @@ public class Tele extends OpMode {
     private ServoConfig servoConfig;
     private boolean empty = false;
 
+    public int a=100;
+    double b=8.7;
+    //tip, nume, valoare
+    float c=5.7f;
+    String nume="Adelin";
+    char caracter='f';
+    boolean ok=true;//0-false, 1-adevarat
+    int varsta;
+    int Varsta;
+    //tip, nume
+    //+ suma
+    //- scadere
+    //* inmultire
+    // / impartire
+    // % modulo - restul imaprtirii
+
+
+
+
     private int launchCount = 0;
     private int launchStep = 0;
 

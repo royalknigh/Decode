@@ -40,7 +40,7 @@ public class AprilTagDistance extends OpMode {
         YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         limelight3A.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
         LLResult llResult = limelight3A.getLatestResult();
-        if (llResult != null && llResult.isValid()) {`
+        if (llResult != null && llResult.isValid()) {
             Pose3D botPose = llResult.getBotpose_MT2();
             distance = getDistanceFromTag(llResult.getTa());
             telemetry.addData("distance: ", distance);

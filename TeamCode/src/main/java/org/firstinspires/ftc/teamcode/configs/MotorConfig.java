@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.configs;
 
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -7,6 +9,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 public class MotorConfig {
+
+    public static double lP = 0, lI = 0, lD = 0, lF = 0;
+    public PIDFController liftPID;
+    public static int intTargetPosition = 0;
+    private boolean isSlideDown;
 
     public static DcMotorEx frontLeftMotor, backLeftMotor, frontRightMotor,
             backRightMotor, launchMotor, liftLeftMotor, liftRightMotor, inatkeMotor;
@@ -95,4 +102,40 @@ public class MotorConfig {
         backRightMotor.setPower(backRightPower);
     }
 
+    public void setLiftPID() {
+        liftPID.setTargetPosition(intTargetPosition);
+        liftPID.updatePosition(liftRightMotor.getCurrentPosition());
+
+        double liftPower = liftPID.run();
+
+        if (Math.abs(liftRightMotor.getCurrentPosition() - intTargetPosition) < 10)
+            liftPower = 0;
+
+        if (liftRightMotor.getCurrentPosition() < 5 && liftRightMotor.getVelocity() < 0.05 && intTargetPosition ==0) {
+            liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+            liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+            isSlideDown = true;
+        }
+
+        if (intTargetPosition == 0 && isSlideDown){
+            liftRightMotor.setPower(0);
+            liftLeftMotor.setPower(0);
+        }
+            
+        else {
+            liftRightMotor.setPower(liftPower);
+            liftLeftMotor.setPower(liftPower);
+        }
+
+    }
+
+    public void updatePIDFController() {
+        PIDFCoefficients intCoefficients = new PIDFCoefficients(lP, lI, lD, lF);
+        liftPID = new PIDFController(intCoefficients);
+    }
 }
+

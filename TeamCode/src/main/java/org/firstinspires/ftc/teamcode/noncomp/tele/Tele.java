@@ -3,10 +3,14 @@
  */
 package org.firstinspires.ftc.teamcode.noncomp.tele;
 
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
@@ -16,14 +20,17 @@ import org.firstinspires.ftc.teamcode.constants.ServoConstants;
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative OpMode")
 @Disabled
 public class Tele extends OpMode {
-    private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime launchTimer = new ElapsedTime();
+    private ElapsedTime runtime = new ElapsedTime(), launchTimer = new ElapsedTime();
+
     private enum State {INIT, INTAKE, LAUNCH, LIFT}
-    private State state = State.INIT;
+
+    private State state;
     private final int fraction = 1;
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private boolean empty = false;
+
+
 
     private int launchCount = 0;
     private int launchStep = 0;
@@ -33,6 +40,7 @@ public class Tele extends OpMode {
         motorConfig = new MotorConfig(hardwareMap);
         servoConfig = new ServoConfig(hardwareMap);
         servoConfig.setInitPos();
+        state = State.INIT;
     }
 
     @Override
@@ -47,6 +55,8 @@ public class Tele extends OpMode {
     @Override
     public void loop() {
         movement();
+        motorConfig.setLiftPID();
+        motorConfig.updatePIDFController();
         stateMachine();
     }
 
@@ -72,7 +82,7 @@ public class Tele extends OpMode {
             case INIT: {
                 motorConfig.launchMotor.setPower(0);
                 motorConfig.inatkeMotor.setPower(0);
-                if(gamepad1.left_trigger>0)
+                if (gamepad1.left_trigger > 0)
                     state = State.INTAKE;
                 break;
             }
@@ -114,9 +124,12 @@ public class Tele extends OpMode {
             }
         }
     }
-    public void resetLaunch(){
+
+    public void resetLaunch() {
         launchTimer.reset();
         launchCount = 0;
         launchStep = 0;
     }
+
+
 }

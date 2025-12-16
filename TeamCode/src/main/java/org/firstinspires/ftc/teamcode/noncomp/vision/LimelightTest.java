@@ -7,7 +7,12 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-@TeleOp(name = "Limelight Turret Tracker (Rate Limited)", group = "Vision")
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.lang.Math;
+
+@TeleOp(name = "Limelight Turret Tracker (Toggle A)", group = "Vision")
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight = null;
@@ -21,6 +26,9 @@ public class LimelightTest extends LinearOpMode {
     private static final double CYCLE_TIME_SECONDS = 0.02;
     private static final long CYCLE_TIME_MILLIS = (long) (CYCLE_TIME_SECONDS * 1000);
 
+    private boolean isTrackingEnabled = false;
+    private boolean a_was_pressed = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -32,6 +40,7 @@ public class LimelightTest extends LinearOpMode {
         limelight.setPollRateHz(50);
 
         telemetry.addData("Status", "Limelight Initialized. Waiting for Start.");
+        telemetry.addData("Controls", "Press A to TOGGLE Auto-Tracking");
         telemetry.update();
 
         waitForStart();
@@ -40,8 +49,13 @@ public class LimelightTest extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-
                 long currentTime = System.currentTimeMillis();
+
+                boolean a_is_pressed = gamepad1.a;
+                if (a_is_pressed && !a_was_pressed) {
+                    isTrackingEnabled = !isTrackingEnabled;
+                }
+                a_was_pressed = a_is_pressed;
 
                 if (currentTime < nextCycleStartTime) {
                     long waitTime = nextCycleStartTime - currentTime;
@@ -51,32 +65,48 @@ public class LimelightTest extends LinearOpMode {
                 }
 
                 nextCycleStartTime = System.currentTimeMillis() + CYCLE_TIME_MILLIS;
+                if (isTrackingEnabled) {
+                    LLResult result = limelight.getLatestResult();
+                    if (result != null && result.isValid()) {
+                        double tx = result.getTx();
+                        Pose3D botpose = result.getBotpose_MT2();
 
-                LLResult result = limelight.getLatestResult();
+                        double zTranslation = botpose.getPosition().z;
+                        double yTranslation = botpose.getPosition().y;
+                        double trueDistance = Math.hypot(zTranslation, yTranslation);
+                        double yawError = TARGET_X_OFFSET - tx;
 
-                if (result != null && result.isValid()) {
+                        if (Math.abs(yawError) > ERROR_DEADBAND_DEGREES) {
+                            double drivePower = yawError * TURRET_KP;
+                            drivePower = Math.max(-MAX_SERVO_SPEED, Math.min(drivePower, MAX_SERVO_SPEED));
+                            turretServo.setPower(drivePower);
 
-                    double tx = result.getTx();
-                    double yawError = TARGET_X_OFFSET - tx;
+                            telemetry.addData("Mode", "AUTO-TRACKING (ON)");
+                            telemetry.addData("Tracking", "Target Found!");
+                            telemetry.addData("Yaw Error (tx)", "%.2f deg", yawError);
 
-                    if (Math.abs(yawError) > ERROR_DEADBAND_DEGREES) {
+                        } else {
+                            turretServo.setPower(0.0);
+                            telemetry.addData("Mode", "AUTO-TRACKING (ON)");
+                            telemetry.addData("Tracking", "Centered and Stopped");
+                        }
 
-                        double drivePower = yawError * TURRET_KP;
-
-                        drivePower = Math.max(-MAX_SERVO_SPEED, Math.min(drivePower, MAX_SERVO_SPEED));
-
-                        turretServo.setPower(drivePower);
-
-                        telemetry.addData("Tracking", "Target Found!");
-                        telemetry.addData("Yaw Error (tx)", "%.2f deg", yawError);
+                        telemetry.addData("Distance (Hypot)", "%.2f meters", trueDistance);
 
                     } else {
                         turretServo.setPower(0.0);
-                        telemetry.addData("Tracking", "Centered and Stopped");
+                        telemetry.addData("Mode", "AUTO-TRACKING (ON)");
+                        telemetry.addData("Tracking", "No Valid Limelight Target");
+                        telemetry.addData("Distance (Hypot)", "N/A");
                     }
+
                 } else {
+
                     turretServo.setPower(0.0);
-                    telemetry.addData("Tracking", "No Valid Limelight Target");
+
+                    telemetry.addData("Mode", "MANUAL (OFF)");
+                    telemetry.addData("Tracking", "Disabled");
+                    telemetry.addData("Distance (Hypot)", "N/A");
                 }
 
                 telemetry.addData("Loop Frequency", "%.0f Hz", 1000.0 / (System.currentTimeMillis() - currentTime));

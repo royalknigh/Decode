@@ -47,6 +47,7 @@ public class Tele extends OpMode {
     public void init_loop() {
     }
 
+
     @Override
     public void start() {
         runtime.reset();
@@ -75,6 +76,7 @@ public class Tele extends OpMode {
         double backRightPower = (y + x - rx) / denominator;
         motorConfig.setMotorPowers(frontLeftPower / fraction, backLeftPower / fraction,
                 frontRightPower / fraction, backRightPower / fraction);
+
     }
 
     public void stateMachine() {

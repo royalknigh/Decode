@@ -7,12 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
-
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-
-import java.lang.Math;
-
-@TeleOp(name = "Limelight Turret Tracker (Toggle A)", group = "Vision")
+@TeleOp(name = "Limelight Turret Tracker (Rate Limited)", group = "Vision")
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight = null;

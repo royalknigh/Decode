@@ -2,11 +2,15 @@
  * [License details omitted for brevity, same as provided]
  */
 package org.firstinspires.ftc.teamcode.noncomp.tele;
-//inceput
+
+import com.pedropathing.control.PIDFCoefficients;
+import com.pedropathing.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
@@ -16,31 +20,15 @@ import org.firstinspires.ftc.teamcode.constants.ServoConstants;
 @TeleOp(name="Basic: Iterative OpMode", group="Iterative OpMode")
 @Disabled
 public class Tele extends OpMode {
-    private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime launchTimer = new ElapsedTime();
+    private ElapsedTime runtime = new ElapsedTime(), launchTimer = new ElapsedTime();
+
     private enum State {INIT, INTAKE, LAUNCH, LIFT}
-    private State state = State.INIT;
+
+    private State state;
     private final int fraction = 1;
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private boolean empty = false;
-
-    public int a=100;
-    double b=8.7;
-    //tip, nume, valoare
-    float c=5.7f;
-    String nume="Adelin";
-    char caracter='f';
-    boolean ok=true;//0-false, 1-adevarat
-    int varsta;
-    int Varsta;
-    //tip, nume
-    //+ suma
-    //- scadere
-    //* inmultire
-    // / impartire
-    // % modulo - restul imaprtirii
-
 
 
 
@@ -52,11 +40,13 @@ public class Tele extends OpMode {
         motorConfig = new MotorConfig(hardwareMap);
         servoConfig = new ServoConfig(hardwareMap);
         servoConfig.setInitPos();
+        state = State.INIT;
     }
 
     @Override
     public void init_loop() {
     }
+
 
     @Override
     public void start() {
@@ -66,6 +56,8 @@ public class Tele extends OpMode {
     @Override
     public void loop() {
         movement();
+        motorConfig.setLiftPID();
+        motorConfig.updatePIDFController();
         stateMachine();
     }
 
@@ -84,6 +76,7 @@ public class Tele extends OpMode {
         double backRightPower = (y + x - rx) / denominator;
         motorConfig.setMotorPowers(frontLeftPower / fraction, backLeftPower / fraction,
                 frontRightPower / fraction, backRightPower / fraction);
+
     }
 
     public void stateMachine() {
@@ -91,7 +84,7 @@ public class Tele extends OpMode {
             case INIT: {
                 motorConfig.launchMotor.setPower(0);
                 motorConfig.inatkeMotor.setPower(0);
-                if(gamepad1.left_trigger>0)
+                if (gamepad1.left_trigger > 0)
                     state = State.INTAKE;
                 break;
             }
@@ -133,9 +126,12 @@ public class Tele extends OpMode {
             }
         }
     }
-    public void resetLaunch(){
+
+    public void resetLaunch() {
         launchTimer.reset();
         launchCount = 0;
         launchStep = 0;
     }
+
+
 }

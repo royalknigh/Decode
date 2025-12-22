@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="CRServo Simple Control")
 public class ServoTest extends LinearOpMode {
@@ -13,6 +14,7 @@ public class ServoTest extends LinearOpMode {
 
     private DcMotor motor;
     private DcMotor motor1;
+    private DcMotor motor2;
 
     @Override
     public void runOpMode() {
@@ -21,7 +23,9 @@ public class ServoTest extends LinearOpMode {
         crServo2 = hardwareMap.get(CRServo.class, "crServo2");
         motor = hardwareMap.get(DcMotor.class, "fl");
         motor1 = hardwareMap.get(DcMotor.class, "bl");
-        motor1 = hardwareMap.get(DcMotor.class, "bl");
+        motor2 = hardwareMap.get(DcMotor.class, "br");
+
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
@@ -34,6 +38,7 @@ public class ServoTest extends LinearOpMode {
             crServo2.setPower(power);
             motor.setPower(gamepad1.left_stick_y);
             motor1.setPower(gamepad1.right_stick_y);
+            motor2.setPower(gamepad1.left_stick_y);
 
             telemetry.addData("CRServo Power", power);
             telemetry.update();

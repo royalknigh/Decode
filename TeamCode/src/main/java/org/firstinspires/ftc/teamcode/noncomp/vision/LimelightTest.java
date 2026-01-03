@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.noncomp.vision;
 
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -13,6 +14,7 @@ import java.lang.Math;
 import java.util.List;
 
 @TeleOp(name = "Limelight Turret Tracker (Revised)", group = "Vision")
+@Disabled
 public class LimelightTest extends LinearOpMode {
 
     private Limelight3A limelight = null;

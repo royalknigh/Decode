@@ -16,18 +16,19 @@ public class MotorConfig {
     private boolean isSlideDown;
 
     public static DcMotorEx frontLeftMotor, backLeftMotor, frontRightMotor,
-            backRightMotor, launchMotor, liftLeftMotor, liftRightMotor, inatkeMotor;
+            backRightMotor, launchMotor1, launchMotor2, liftLeftMotor, liftRightMotor, intakeMotor;
     public MotorConfig(HardwareMap hardwareMap) {
-        frontLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "frontLeftMotor");
-        backLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "backLeftMotor");
-        frontRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "frontRightMotor");
-        backRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "backRightMotor");
+        frontLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "fl");
+        backLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "bl");
+        frontRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "fr");
+        backRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "br");
 
-        launchMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "launchMotor");
-        inatkeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "intakeMotor");
+        launchMotor1 = (DcMotorEx) hardwareMap.get(DcMotor.class, "lm1");
+        launchMotor2 = (DcMotorEx) hardwareMap.get(DcMotor.class, "lm2");
+        intakeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "im");
 
-        liftLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "liftLeftMotor");
-        liftRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "liftRightMotor");
+//        liftLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "liftLeftMotor");
+//        liftRightMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "liftRightMotor");
 
         frontLeftMotor.setDirection(DcMotorEx.Direction.REVERSE);
         backLeftMotor.setDirection(DcMotorEx.Direction.REVERSE);
@@ -39,40 +40,48 @@ public class MotorConfig {
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        launchMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        inatkeMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        launchMotor1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        launchMotor2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-        launchMotor.setDirection(DcMotorEx.Direction.FORWARD);
-        inatkeMotor.setDirection(DcMotorEx.Direction.FORWARD);
+        launchMotor1.setDirection(DcMotorEx.Direction.FORWARD);
+        launchMotor2.setDirection(DcMotorEx.Direction.REVERSE);
+        intakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
-        launchMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        inatkeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        launchMotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        launchMotor2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-        launchMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        inatkeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        launchMotor1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        launchMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
 
-        liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        liftLeftMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        liftLeftMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+//        liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//        liftLeftMotor.setDirection(DcMotorEx.Direction.REVERSE);
+//        liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+//        liftLeftMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+//
+//        liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//        liftRightMotor.setDirection(DcMotorEx.Direction.REVERSE);
+//        liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+//        liftRightMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        liftRightMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        liftRightMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        MotorConfigurationType configlaunchMotor1 = launchMotor1.getMotorType().clone();
+        configlaunchMotor1.setAchieveableMaxRPMFraction(1.0);
+        launchMotor1.setMotorType(configlaunchMotor1);
 
-        MotorConfigurationType configLaunchMotor = launchMotor.getMotorType().clone();
-        configLaunchMotor.setAchieveableMaxRPMFraction(1.0);
-        launchMotor.setMotorType(configLaunchMotor);
+        MotorConfigurationType configlaunchMotor2 = launchMotor2.getMotorType().clone();
+        configlaunchMotor2.setAchieveableMaxRPMFraction(1.0);
+        launchMotor2.setMotorType(configlaunchMotor2);
 
-        MotorConfigurationType configLiftLeftMotor = liftLeftMotor.getMotorType().clone();
-        configLiftLeftMotor.setAchieveableMaxRPMFraction(1.0);
-        liftLeftMotor.setMotorType(configLiftLeftMotor);
-
-        MotorConfigurationType configLiftRightMotor = liftLeftMotor.getMotorType().clone();
-        configLiftRightMotor.setAchieveableMaxRPMFraction(1.0);
-        liftLeftMotor.setMotorType(configLiftRightMotor);
+//        MotorConfigurationType configLiftLeftMotor = liftLeftMotor.getMotorType().clone();
+//        configLiftLeftMotor.setAchieveableMaxRPMFraction(1.0);
+//        liftLeftMotor.setMotorType(configLiftLeftMotor);
+//
+//        MotorConfigurationType configLiftRightMotor = liftLeftMotor.getMotorType().clone();
+//        configLiftRightMotor.setAchieveableMaxRPMFraction(1.0);
+//        liftLeftMotor.setMotorType(configLiftRightMotor);
 
         MotorConfigurationType configFrontLeftMotor = frontLeftMotor.getMotorType().clone();
         configFrontLeftMotor.setAchieveableMaxRPMFraction(1.0);
@@ -90,9 +99,9 @@ public class MotorConfig {
         configBackRightMotor.setAchieveableMaxRPMFraction(1.0);
         backRightMotor.setMotorType(configBackRightMotor);
 
-        MotorConfigurationType configIntakeMotor = liftLeftMotor.getMotorType().clone();
+        MotorConfigurationType configIntakeMotor = intakeMotor.getMotorType().clone();
         configIntakeMotor.setAchieveableMaxRPMFraction(1.0);
-        liftLeftMotor.setMotorType(configIntakeMotor);
+        intakeMotor.setMotorType(configIntakeMotor);
     }
 
     public void setMotorPowers(double frontLeftPower, double backLeftPower, double frontRightPower, double backRightPower) {
@@ -102,40 +111,40 @@ public class MotorConfig {
         backRightMotor.setPower(backRightPower);
     }
 
-    public void setLiftPID() {
-        liftPID.setTargetPosition(intTargetPosition);
-        liftPID.updatePosition(liftRightMotor.getCurrentPosition());
+//    public void setLiftPID() {
+//        liftPID.setTargetPosition(intTargetPosition);
+//        liftPID.updatePosition(liftRightMotor.getCurrentPosition());
+//
+//        double liftPower = liftPID.run();
+//
+//        if (Math.abs(liftRightMotor.getCurrentPosition() - intTargetPosition) < 10)
+//            liftPower = 0;
+//
+//        if (liftRightMotor.getCurrentPosition() < 5 && liftRightMotor.getVelocity() < 0.05 && intTargetPosition ==0) {
+//            liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//            liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//
+//            liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+//            liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+//
+//            isSlideDown = true;
+//        }
+//
+//        if (intTargetPosition == 0 && isSlideDown){
+//            liftRightMotor.setPower(0);
+//            liftLeftMotor.setPower(0);
+//        }
+//
+//        else {
+//            liftRightMotor.setPower(liftPower);
+//            liftLeftMotor.setPower(liftPower);
+//        }
+//
+//    }
 
-        double liftPower = liftPID.run();
-
-        if (Math.abs(liftRightMotor.getCurrentPosition() - intTargetPosition) < 10)
-            liftPower = 0;
-
-        if (liftRightMotor.getCurrentPosition() < 5 && liftRightMotor.getVelocity() < 0.05 && intTargetPosition ==0) {
-            liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-            liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-            liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
-            isSlideDown = true;
-        }
-
-        if (intTargetPosition == 0 && isSlideDown){
-            liftRightMotor.setPower(0);
-            liftLeftMotor.setPower(0);
-        }
-            
-        else {
-            liftRightMotor.setPower(liftPower);
-            liftLeftMotor.setPower(liftPower);
-        }
-
-    }
-
-    public void updatePIDFController() {
-        PIDFCoefficients intCoefficients = new PIDFCoefficients(lP, lI, lD, lF);
-        liftPID = new PIDFController(intCoefficients);
-    }
+//    public void updatePIDFController() {
+//        PIDFCoefficients intCoefficients = new PIDFCoefficients(lP, lI, lD, lF);
+//        liftPID = new PIDFController(intCoefficients);
+//    }
 }
 

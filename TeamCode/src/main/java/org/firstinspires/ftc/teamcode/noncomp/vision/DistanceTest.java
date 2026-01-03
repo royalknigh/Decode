@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
-@TeleOp(name = "Sensor: Limelight Distance", group = "Sensor")
+@TeleOp(name = "Limelight Distance", group = "Sensor")
 public class DistanceTest extends LinearOpMode {
 
     private Limelight3A limelight;
@@ -17,8 +17,8 @@ public class DistanceTest extends LinearOpMode {
     /* * CONSTANTS FOR DISTANCE CALCULATION
      * Adjust these based on your physical robot setup
      */
-    final double MOUNT_ANGLE_DEG = 28.2;     // Degrees back from vertical
-    final double LENS_HEIGHT_INCHES = 6;  // Center of lens to floor
+    final double MOUNT_ANGLE_DEG = 21.23;     // Degrees back from vertical
+    final double LENS_HEIGHT_INCHES = 15;  // Center of lens to floor
     final double GOAL_HEIGHT_INCHES = 28.75;  // Center of AprilTag to floor
 
     @Override

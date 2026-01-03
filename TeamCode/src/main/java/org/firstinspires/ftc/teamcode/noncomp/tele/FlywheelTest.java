@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.noncomp.tele; // Assuming a package structure
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import java.util.Arrays;
 
 @TeleOp(name = "Flywheel Tuner Tutorial", group = "Tuning")
+@Disabled
 public class FlywheelTest extends OpMode {
 
     // --- Motor and Velocity ---

@@ -21,7 +21,7 @@ import java.util.List;
 import java.lang.Math;
 
 
-@TeleOp(name="Omni Drive + Limelight Turret", group="Final OpModes")
+@TeleOp(name="Apriltag follower", group="Final OpModes")
 public class SensorLimelight3A extends LinearOpMode {
 
     // --- VARIABILE HARDWARE ---

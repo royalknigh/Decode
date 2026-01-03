@@ -34,6 +34,7 @@ public class CombinedRobotOpMode extends LinearOpMode {
 
     private CRServo turretServo = null;
     private Servo hoodServo = null;
+    private Servo launchServo = null;
     private Limelight3A limelight = null;
 
     // --- TUNING ---
@@ -43,6 +44,8 @@ public class CombinedRobotOpMode extends LinearOpMode {
     private static final double MAX_SERVO_SPEED = 0.7;
 
     private double hoodPosition =0.5;
+    private double servoDown = 0.51;
+    private double servoUp = 0.9;
 
     private boolean isTrackingEnabled = false;
 
@@ -72,7 +75,10 @@ public class CombinedRobotOpMode extends LinearOpMode {
         intakeMotor = hardwareMap.get(DcMotor.class, "im");
         hoodServo = hardwareMap.get(Servo.class, "hs");
 
+        launchServo = hardwareMap.get(Servo.class, "ls");
+
         launchMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        launchServo.setDirection(Servo.Direction.REVERSE);
 
         // 3. Limelight Initialization
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -129,6 +135,10 @@ public class CombinedRobotOpMode extends LinearOpMode {
             if(gamepad1.dpad_down)
                 hoodPosition-=0.03;
 
+            if(gamepad1.b)
+                launchServo.setPosition(servoUp);
+            else
+                launchServo.setPosition(servoDown);
             hoodServo.setPosition(hoodPosition);
 
 
@@ -163,6 +173,7 @@ public class CombinedRobotOpMode extends LinearOpMode {
             telemetry.addData("Tracking", isTrackingEnabled ? "AUTO" : "MANUAL");
             telemetry.addData("Launch Power", "%.2f", launchPower);
             telemetry.addData("Turret Power", "%.2f", turretServo.getPower());
+
             telemetry.update();
         }
 

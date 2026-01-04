@@ -6,20 +6,17 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
-@TeleOp(name = "Limelight Distance", group = "Sensor")
+@TeleOp(name = "Limelight Distance Calibrated", group = "Sensor")
 public class DistanceTest extends LinearOpMode {
 
     private Limelight3A limelight;
 
-    /* * CONSTANTS FOR DISTANCE CALCULATION
-     * Adjust these based on your physical robot setup
-     */
-    final double MOUNT_ANGLE_DEG = 21.23;     // Degrees back from vertical
-    final double LENS_HEIGHT_INCHES = 15;  // Center of lens to floor
-    final double GOAL_HEIGHT_INCHES = 28.75;  // Center of AprilTag to floor
+    // PHYSICAL CONSTANTS
+    final double MOUNT_ANGLE_DEG = 21.23;
+    final double LENS_HEIGHT_INCHES = 15.0;
+    final double GOAL_HEIGHT_INCHES = 28.75;
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -27,7 +24,6 @@ public class DistanceTest extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
 
-        // Ensure your pipeline (index 5 here) is set to AprilTags in the LL web UI
         limelight.pipelineSwitch(5);
         limelight.start();
 
@@ -39,25 +35,32 @@ public class DistanceTest extends LinearOpMode {
             LLStatus status = limelight.getStatus();
             LLResult result = limelight.getLatestResult();
 
+            // ... inside your while(opModeIsActive()) loop ...
+
             if (result != null && result.isValid()) {
-                // 1. GET VERTICAL OFFSET (ty)
                 double ty = result.getTy();
 
-                // 2. CALCULATE DISTANCE USING YOUR FORMULA
+                // 1. CALCULATE RAW TRIG DISTANCE
                 double angleToGoalRadians = Math.toRadians(MOUNT_ANGLE_DEG + ty);
-                double distanceInches = (GOAL_HEIGHT_INCHES - LENS_HEIGHT_INCHES) / Math.tan(angleToGoalRadians);
+                double rawDist = (GOAL_HEIGHT_INCHES - LENS_HEIGHT_INCHES) / Math.tan(angleToGoalRadians);
 
-                // 3. TELEMETRY OUTPUT
-                telemetry.addData("Target", "FOUND");
-                telemetry.addData("Vertical Offset (ty)", "%.2f degrees", ty);
-                telemetry.addData("Calculated Distance", "%.2f inches", distanceInches);
+                // 2. APPLY POLYNOMIAL CORRECTION (Your current curve)
+                double polyDist = (0.0011 * Math.pow(rawDist, 2)) + (0.64 * rawDist) + 11.5;
 
-                // Show individual AprilTag IDs if multiple are in view
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    telemetry.addData("Fiducial ID", fr.getFiducialId());
+                // 3. APPLY DAMPENING (Only for 120+ inches)
+                double finalDistance;
+                if (polyDist < 120.0) {
+                    finalDistance = polyDist;
+                } else {
+                    // We take everything above 120 and dampen it significantly
+                    // If polyDist is 140, this becomes: 120 + (20 * 0.25) = 125
+                    double overhead = polyDist - 120.0;
+                    finalDistance = 120.0 + (overhead * 0.25);
                 }
 
+                // 4. TELEMETRY
+                telemetry.addData("Vertical Offset (ty)", "%.2f", ty);
+                telemetry.addData("Corrected Distance", "%.1f in", finalDistance);
             } else {
                 telemetry.addData("Target", "NOT VISIBLE");
             }

@@ -14,7 +14,7 @@ public class ServoControl extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        servo = hardwareMap.get(Servo.class, "servo");
+        servo = hardwareMap.get(Servo.class, "ls");
         servo.setDirection(Servo.Direction.REVERSE);
 
         waitForStart();

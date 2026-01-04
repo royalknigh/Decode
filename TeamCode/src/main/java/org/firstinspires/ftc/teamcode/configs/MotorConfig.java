@@ -17,6 +17,7 @@ public class MotorConfig {
 
     public static DcMotorEx frontLeftMotor, backLeftMotor, frontRightMotor,
             backRightMotor, launchMotor1, launchMotor2, liftLeftMotor, liftRightMotor, intakeMotor;
+
     public MotorConfig(HardwareMap hardwareMap) {
         frontLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "fl");
         backLeftMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "bl");
@@ -104,6 +105,17 @@ public class MotorConfig {
         intakeMotor.setMotorType(configIntakeMotor);
     }
 
+
+    public void mecanumDrive(double y, double x, double rx, double speedDivider) {
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator / speedDivider;
+        double backLeftPower = (y - x + rx) / denominator / speedDivider;
+        double frontRightPower = (y - x - rx) / denominator / speedDivider;
+        double backRightPower = (y + x - rx) / denominator / speedDivider;
+
+        setMotorPowers(frontLeftPower, backLeftPower, frontRightPower, backRightPower);
+    }
+
     public void setMotorPowers(double frontLeftPower, double backLeftPower, double frontRightPower, double backRightPower) {
         frontLeftMotor.setPower(frontLeftPower);
         backLeftMotor.setPower(backLeftPower);
@@ -147,4 +159,3 @@ public class MotorConfig {
 //        liftPID = new PIDFController(intCoefficients);
 //    }
 }
-

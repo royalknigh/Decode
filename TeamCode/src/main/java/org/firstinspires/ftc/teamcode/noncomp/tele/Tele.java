@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.noncomp.tele;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
@@ -13,7 +12,6 @@ import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 
 @TeleOp(name="Competition TeleOp", group="Iterative OpMode")
 public class Tele extends OpMode {
-    private ElapsedTime runtime = new ElapsedTime();
     private enum State {INIT, INTAKE, LAUNCH}
     private State state;
 
@@ -70,13 +68,14 @@ public class Tele extends OpMode {
     private void handleStateMachine() {
         switch (state) {
             case INIT:
-                launchSystem.stop();
-                motorConfig.intakeMotor.setPower(0);
+                // Flywheel is now automatically idling at 1000 ticks/sec
                 if (gamepad1.left_trigger > 0) state = State.INTAKE;
                 if (gamepad1.x) {
                     launchSystem.start();
                     state = State.LAUNCH;
                 }
+                // Optional: Kill motors completely if back button pressed
+                if (gamepad1.back) launchSystem.fullStop();
                 break;
 
             case INTAKE:
@@ -90,7 +89,7 @@ public class Tele extends OpMode {
 
             case LAUNCH:
                 if (launchSystem.update()) {
-                    state = State.INIT;
+                    state = State.INIT; // Returns to INIT, which keeps flywheel in idle
                 }
                 break;
         }
@@ -104,24 +103,13 @@ public class Tele extends OpMode {
     }
 
     private void displayTelemetry() {
-        // ZONE 1: LAUNCHER (Ticks + RPM)
         telemetry.addLine("=== LAUNCHER STATUS ===");
-        String readyStr = launchSystem.isReady() ? "!!! READY TO FIRE !!!" : "SPINNING UP...";
-        telemetry.addData("Status", readyStr);
-
-        // Raw Ticks (Target 1900)
-        telemetry.addData("Motor Ticks", "%.0f / 1900", launchSystem.getVelocity());
-
-        // Intuitive RPM (Target ~3730)
-        telemetry.addData("Flywheel RPM", "%.0f / %.0f",
-                launchSystem.getFlywheelRPM(), launchSystem.getTargetRPM());
-
-        // ZONE 2: SUBSYSTEMS
-        telemetry.addLine("\n=== SUBSYSTEMS ===");
+        telemetry.addData("Status", launchSystem.isReady() ? "READY" : "WAITING");
+        telemetry.addData("Velocity", "%.0f", launchSystem.getVelocity());
         telemetry.addData("Robot State", state);
-        telemetry.addData("Hood Position", "%.3f", hoodPosition);
+        telemetry.addData("Hood Pos", "%.3f", hoodPosition);
 
         double dist = limelightController.getDistance();
-        telemetry.addData("Limelight Dist", dist > 0 ? "%.1f in" : "NO TARGET", dist);
+        telemetry.addData("Limelight Dist", dist > 0 ? "%.1f in" : "NO TARGET");
     }
 }

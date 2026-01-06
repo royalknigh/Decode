@@ -69,11 +69,11 @@ public class CombinedRobotOpMode extends LinearOpMode {
         backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // 2. Turret & Launch Motor Initialization
-        turretServo = hardwareMap.get(CRServo.class, "turret_servo");
+        turretServo = hardwareMap.get(CRServo.class, "leftTurret");
         launchMotor1 = hardwareMap.get(DcMotor.class, "lm1");
         launchMotor2 = hardwareMap.get(DcMotor.class, "lm2");
         intakeMotor = hardwareMap.get(DcMotor.class, "im");
-        hoodServo = hardwareMap.get(Servo.class, "hs");
+        hoodServo = hardwareMap.get(Servo.class, "hood");
 
         launchServo = hardwareMap.get(Servo.class, "ls");
 

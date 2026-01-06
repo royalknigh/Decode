@@ -11,10 +11,10 @@ import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 
-@TeleOp(name="Basic: Iterative OpMode", group="Iterative OpMode")
+@TeleOp(name="Competition TeleOp", group="Iterative OpMode")
 public class Tele extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
-    private enum State {INIT, INTAKE, LAUNCH, LIFT}
+    private enum State {INIT, INTAKE, LAUNCH}
     private State state;
 
     private MotorConfig motorConfig;
@@ -36,11 +36,6 @@ public class Tele extends OpMode {
 
         servoConfig.setInitPos();
         state = State.INIT;
-    }
-
-    @Override
-    public void start() {
-        runtime.reset();
     }
 
     @Override
@@ -68,9 +63,7 @@ public class Tele extends OpMode {
     }
 
     private void handleTracking() {
-        if (gamepad1.a) {
-            limelightController.toggleTracking();
-        }
+        if (gamepad1.a) limelightController.toggleTracking();
         limelightController.updateTracking();
     }
 
@@ -87,13 +80,12 @@ public class Tele extends OpMode {
                 break;
 
             case INTAKE:
-                motorConfig.intakeMotor.setPower(
-                        gamepad1.left_trigger > 0.1 ? gamepad1.left_trigger : 0
-                );
+                motorConfig.intakeMotor.setPower(gamepad1.left_trigger > 0.1 ? gamepad1.left_trigger : 0);
                 if (gamepad1.x) {
                     launchSystem.start();
                     state = State.LAUNCH;
                 }
+                if (gamepad1.left_trigger <= 0.1) state = State.INIT;
                 break;
 
             case LAUNCH:
@@ -101,27 +93,35 @@ public class Tele extends OpMode {
                     state = State.INIT;
                 }
                 break;
-
-            case LIFT:
-                // TODO: IMPLEMENT LIFT
-                break;
         }
     }
 
     private void handleHood() {
-        if (gamepad1.dpad_up) hoodPosition += 0.002;
-        if (gamepad1.dpad_down) hoodPosition -= 0.002;
+        if (gamepad1.dpad_up) hoodPosition += 0.003;
+        if (gamepad1.dpad_down) hoodPosition -= 0.003;
         hoodPosition = Range.clip(hoodPosition, 0, 1);
         servoConfig.hoodServo.setPosition(hoodPosition);
     }
 
     private void displayTelemetry() {
-        double distance = limelightController.getDistance();
+        // ZONE 1: LAUNCHER (Ticks + RPM)
+        telemetry.addLine("=== LAUNCHER STATUS ===");
+        String readyStr = launchSystem.isReady() ? "!!! READY TO FIRE !!!" : "SPINNING UP...";
+        telemetry.addData("Status", readyStr);
+
+        // Raw Ticks (Target 1900)
+        telemetry.addData("Motor Ticks", "%.0f / 1900", launchSystem.getVelocity());
+
+        // Intuitive RPM (Target ~3730)
+        telemetry.addData("Flywheel RPM", "%.0f / %.0f",
+                launchSystem.getFlywheelRPM(), launchSystem.getTargetRPM());
+
+        // ZONE 2: SUBSYSTEMS
+        telemetry.addLine("\n=== SUBSYSTEMS ===");
+        telemetry.addData("Robot State", state);
         telemetry.addData("Hood Position", "%.3f", hoodPosition);
-        if (distance > 0) {
-            telemetry.addData("Target Distance", "%.1f in", distance);
-        } else {
-            telemetry.addData("Target", "NOT VISIBLE");
-        }
+
+        double dist = limelightController.getDistance();
+        telemetry.addData("Limelight Dist", dist > 0 ? "%.1f in" : "NO TARGET", dist);
     }
 }

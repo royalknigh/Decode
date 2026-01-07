@@ -10,9 +10,9 @@ public class LimelightController {
     private boolean isTrackingEnabled = false;
 
     private static final double TARGET_X_OFFSET = 0.0;
-    private static final double TURRET_KP = 0.018;
+    private static final double TURRET_KP = 0.01;
     private static final double ERROR_DEADBAND_DEGREES = 1.0;
-    private static final double MAX_SERVO_SPEED = 0.8;
+    private static final double MAX_SERVO_SPEED = 1;
 
     private static final double MOUNT_ANGLE_DEG = 21.23;
     private static final double LENS_HEIGHT_INCHES = 15.0;
@@ -40,11 +40,14 @@ public class LimelightController {
                 double turretPower = yawError * TURRET_KP;
                 turretPower = Math.max(-MAX_SERVO_SPEED, Math.min(turretPower, MAX_SERVO_SPEED));
                 servoConfig.leftTurretServo.setPower(turretPower);
+                servoConfig.rightTurretServo.setPower(turretPower);
             } else {
                 servoConfig.leftTurretServo.setPower(0.0);
+                servoConfig.rightTurretServo.setPower(0.0);
             }
         } else {
             servoConfig.leftTurretServo.setPower(0.0);
+            servoConfig.rightTurretServo.setPower(0.0);
         }
     }
 

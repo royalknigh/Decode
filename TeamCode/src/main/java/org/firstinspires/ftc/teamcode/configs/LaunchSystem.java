@@ -2,104 +2,118 @@ package org.firstinspires.ftc.teamcode.configs;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.constants.ServoConstants;
 
 public class LaunchSystem {
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
-    private DcMotorEx master, slave;
+
+    private DcMotorEx lm1, lm2;
 
     private ElapsedTime launchTimer = new ElapsedTime();
     private int launchStep = 0;
     private boolean isLaunching = false;
-    private int stabilityCounter = 0;
+    private double currentTargetVelocity = 1800.0;
+    private double activeIntervalMs = 1500.0;
 
-    // Hardcoded PIDF
-    public static double P = 15.0;
-    public static double I = 0.0;
-    public static double D = 0.0;
-    public static double F = 12.5;
-
-    // Velocities
-    private static final double TARGET_TICKS_PER_SEC = 2500;
-    private static final double IDLE_TICKS_PER_SEC = 1000; // Fast enough to stay warm, slow enough to save battery
-    private static final double VELOCITY_TOLERANCE = 45.0;
+    // --- VELOCITY CONSTANTS ---
+    public static final double HIGH_VELOCITY = 1800.0;
+    public static final double LOW_VELOCITY = 1400.0;
+    public static final double IDLE_VELOCITY = 1000.0;
+    public static final double INIT_VELOCITY = 800;
 
     public LaunchSystem(MotorConfig motorConfig, ServoConfig servoConfig) {
         this.motorConfig = motorConfig;
         this.servoConfig = servoConfig;
+        this.lm1 = MotorConfig.launchMotor1;
+        this.lm2 = MotorConfig.launchMotor2;
 
-        master = (DcMotorEx) motorConfig.launchMotor1;
-        slave = (DcMotorEx) motorConfig.launchMotor2;
+        // Active velocity control on both motors
+        lm1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lm2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        master.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        master.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(P, I, D, F));
+        lm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        slave.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        master.setDirection(DcMotorSimple.Direction.REVERSE);
-        slave.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        master.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        slave.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-        // Start the match in Idle
-        idle();
+        setDualVelocity(INIT_VELOCITY);
     }
 
-    public void start() {
+    private void setDualVelocity(double velocity) {
+        lm1.setVelocity(velocity);
+        lm2.setVelocity(velocity);
+    }
+
+    public void start(double target, double interval) {
+        this.currentTargetVelocity = target;
+        this.activeIntervalMs = interval;
         launchTimer.reset();
         launchStep = 0;
-        stabilityCounter = 0;
         isLaunching = true;
-        master.setVelocity(TARGET_TICKS_PER_SEC);
+        setDualVelocity(currentTargetVelocity);
     }
 
     public void idle() {
         isLaunching = false;
-        master.setVelocity(IDLE_TICKS_PER_SEC);
+        setDualVelocity(IDLE_VELOCITY);
+    }
+
+    public boolean update() {
+        if (!isLaunching) return true;
+
+        // --- EQUAL INTERVAL SEQUENCE ---
+
+        // STEP 0: First ball prep
+        if (launchStep == 0 && launchTimer.milliseconds() >= activeIntervalMs) {
+            servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
+            launchStep = 1;
+            launchTimer.reset();
+        }
+        // STEP 1: Reset servo and feed next ball
+        else if (launchStep == 1 && launchTimer.milliseconds() >= activeIntervalMs) {
+            servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
+            MotorConfig.intakeMotor.setPower(0.8);
+            launchStep = 2;
+            launchTimer.reset();
+        }
+        // STEP 2: Stop intake and prep second ball
+        else if (launchStep == 2 && launchTimer.milliseconds() >= activeIntervalMs) {
+            MotorConfig.intakeMotor.setPower(0);
+            servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
+            launchStep = 3;
+            launchTimer.reset();
+        }
+        // STEP 3: Final PUSH
+        else if (launchStep == 3 && launchTimer.milliseconds() >= activeIntervalMs) {
+            servoConfig.launchServo.setPosition(ServoConstants.launch_PUSH);
+            launchStep = 4;
+            launchTimer.reset();
+        }
+        // STEP 4: Cleanup/Idle
+        else if (launchStep == 4 && launchTimer.milliseconds() >= 500) {
+            servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
+            idle();
+            return true;
+        }
+
+        return false;
+    }
+
+    public String getStatus() {
+        if (!isLaunching) return "IDLE @ 1000";
+        double remaining = (activeIntervalMs - launchTimer.milliseconds()) / 1000.0;
+        if (remaining < 0) remaining = 0;
+
+        String mode = (activeIntervalMs <= 500) ? "RAPID" : "NORMAL";
+        return String.format("%s: Step %d - %.1fs", mode, launchStep, remaining);
+    }
+
+    public double getVelocity() {
+        return (lm1.getVelocity() + lm2.getVelocity()) / 2.0;
     }
 
     public void fullStop() {
         isLaunching = false;
-        master.setVelocity(0);
-        slave.setPower(0);
+        setDualVelocity(0);
     }
-
-    public boolean update() {
-        // ALWAYS keep slave in sync with master's power draw
-        slave.setPower(master.getPower());
-
-        if (!isLaunching) return true;
-
-        double currentVel = master.getVelocity();
-
-        // STEP 0: Wait for stabilization
-        if (launchStep == 0) {
-            boolean atSpeed = Math.abs(TARGET_TICKS_PER_SEC - currentVel) < VELOCITY_TOLERANCE;
-            if (atSpeed) stabilityCounter++;
-            else stabilityCounter = 0;
-
-            if (stabilityCounter >= 3 || launchTimer.milliseconds() > 4000) {
-                motorConfig.intakeMotor.setPower(0.8);
-                servoConfig.launchServo.setPosition(ServoConstants.launch_PUSH);
-                launchStep = 1;
-                launchTimer.reset();
-            }
-        }
-        // STEP 1: Reset and return to IDLE
-        else if (launchStep == 1 && launchTimer.milliseconds() >= 500) {
-            servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-            motorConfig.intakeMotor.setPower(0);
-            idle(); // Instead of full stop, go back to idle speed
-            return true;
-        }
-        return false;
-    }
-
-    public double getVelocity() { return master.getVelocity(); }
-    public boolean isReady() { return stabilityCounter >= 3; }
 }

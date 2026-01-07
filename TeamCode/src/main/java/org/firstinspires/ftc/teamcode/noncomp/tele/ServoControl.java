@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ServoControl extends LinearOpMode {
 
     private Servo servo;
-    private int position =0;
+    private double position =0;
 
     @Override
     public void runOpMode() {
@@ -20,12 +20,12 @@ public class ServoControl extends LinearOpMode {
         while (opModeIsActive()) {
 
             if(-gamepad1.left_stick_y > 0)
-                position +=0.03;
+                position +=0.005;
             if(-gamepad1.left_stick_y<0)
-                position -= 0.03;
+                position -= 0.005;
 
             servo.setPosition(position);
-
+            telemetry.addData("position", position);
             telemetry.update();
         }
     }

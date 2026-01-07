@@ -19,8 +19,8 @@ public class ServoTest extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        crServo1 = hardwareMap.get(CRServo.class, "crServo1");
-        crServo2 = hardwareMap.get(CRServo.class, "crServo2");
+        crServo1 = hardwareMap.get(CRServo.class, "leftTurret");
+        crServo2 = hardwareMap.get(CRServo.class, "rightTurret");
         motor = hardwareMap.get(DcMotor.class, "fl");
         motor1 = hardwareMap.get(DcMotor.class, "bl");
         motor2 = hardwareMap.get(DcMotor.class, "br");

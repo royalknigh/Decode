@@ -32,7 +32,7 @@ public class CombinedRobotOpMode extends LinearOpMode {
     private DcMotor intakeMotor = null;
 
 
-    private CRServo turretServo = null;
+    private CRServo turretServo = null, turretServo1 = null;
     private Servo hoodServo = null;
     private Servo launchServo = null;
     private Limelight3A limelight = null;
@@ -70,6 +70,7 @@ public class CombinedRobotOpMode extends LinearOpMode {
 
         // 2. Turret & Launch Motor Initialization
         turretServo = hardwareMap.get(CRServo.class, "leftTurret");
+        turretServo1 = hardwareMap.get(CRServo.class, "rightTurret");
         launchMotor1 = hardwareMap.get(DcMotor.class, "lm1");
         launchMotor2 = hardwareMap.get(DcMotor.class, "lm2");
         intakeMotor = hardwareMap.get(DcMotor.class, "im");
@@ -160,11 +161,15 @@ public class CombinedRobotOpMode extends LinearOpMode {
                     double turretPower = yawError * TURRET_KP;
                     turretPower = Math.max(-MAX_SERVO_SPEED, Math.min(turretPower, MAX_SERVO_SPEED));
                     turretServo.setPower(turretPower);
+                    turretServo1.setPower(turretPower);
                 } else {
                     turretServo.setPower(0.0);
+                    turretServo1.setPower(0.0);
+
                 }
             } else {
                 turretServo.setPower(0.0); // Stop turret if manual or no target
+                turretServo1.setPower(0.0); // Stop turret if manual or no target
             }
 
             // =========================================================

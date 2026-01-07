@@ -49,12 +49,12 @@ public class MotorConfig {
         launchMotor2.setDirection(DcMotorEx.Direction.REVERSE);
         intakeMotor.setDirection(DcMotorEx.Direction.FORWARD);
 
-        launchMotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        launchMotor2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        launchMotor1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        launchMotor2.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-        launchMotor1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        launchMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        launchMotor1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        launchMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         intakeMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
 

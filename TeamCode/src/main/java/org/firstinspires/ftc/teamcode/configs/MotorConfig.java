@@ -123,39 +123,39 @@ public class MotorConfig {
         backRightMotor.setPower(backRightPower);
     }
 
-//    public void setLiftPID() {
-//        liftPID.setTargetPosition(intTargetPosition);
-//        liftPID.updatePosition(liftRightMotor.getCurrentPosition());
-//
-//        double liftPower = liftPID.run();
-//
-//        if (Math.abs(liftRightMotor.getCurrentPosition() - intTargetPosition) < 10)
-//            liftPower = 0;
-//
-//        if (liftRightMotor.getCurrentPosition() < 5 && liftRightMotor.getVelocity() < 0.05 && intTargetPosition ==0) {
-//            liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-//            liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-//
-//            liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-//            liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-//
-//            isSlideDown = true;
-//        }
-//
-//        if (intTargetPosition == 0 && isSlideDown){
-//            liftRightMotor.setPower(0);
-//            liftLeftMotor.setPower(0);
-//        }
-//
-//        else {
-//            liftRightMotor.setPower(liftPower);
-//            liftLeftMotor.setPower(liftPower);
-//        }
-//
-//    }
+    /*public void setLiftPID() {
+        liftPID.setTargetPosition(intTargetPosition);
+        liftPID.updatePosition(liftRightMotor.getCurrentPosition());
 
-//    public void updatePIDFController() {
-//        PIDFCoefficients intCoefficients = new PIDFCoefficients(lP, lI, lD, lF);
-//        liftPID = new PIDFController(intCoefficients);
-//    }
+        double liftPower = liftPID.run();
+
+        if (Math.abs(liftRightMotor.getCurrentPosition() - intTargetPosition) < 10)
+            liftPower = 0;
+
+        if (liftRightMotor.getCurrentPosition() < 5 && liftRightMotor.getVelocity() < 0.05 && intTargetPosition ==0) {
+            liftRightMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            liftLeftMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
+            liftRightMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            liftLeftMotor.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+            isSlideDown = true;
+        }
+
+        if (intTargetPosition == 0 && isSlideDown){
+            liftRightMotor.setPower(0);
+            liftLeftMotor.setPower(0);
+        }
+
+        else {
+            liftRightMotor.setPower(liftPower);
+            liftLeftMotor.setPower(liftPower);
+        }
+
+    }
+
+    public void updatePIDFController() {
+        PIDFCoefficients intCoefficients = new PIDFCoefficients(lP, lI, lD, lF);
+        liftPID = new PIDFController(intCoefficients);
+    }*/
 }

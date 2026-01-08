@@ -20,9 +20,9 @@ public class ServoControl extends LinearOpMode {
         while (opModeIsActive()) {
 
             if(-gamepad1.left_stick_y > 0)
-                position +=0.005;
+                position +=0.002;
             if(-gamepad1.left_stick_y<0)
-                position -= 0.005;
+                position -= 0.002;
 
             servo.setPosition(position);
             telemetry.addData("position", position);

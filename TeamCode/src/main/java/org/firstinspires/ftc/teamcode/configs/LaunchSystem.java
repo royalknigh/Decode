@@ -19,8 +19,8 @@ public class LaunchSystem {
 
     // --- VELOCITY CONSTANTS ---
     public static final double HIGH_VELOCITY = 1800.0;
-    public static final double LOW_VELOCITY = 1400.0;
-    public static final double IDLE_VELOCITY = 1000.0;
+    public static final double LOW_VELOCITY = 1300.0;
+    public static final double IDLE_VELOCITY = 900;
     public static final double INIT_VELOCITY = 800;
 
     public LaunchSystem(MotorConfig motorConfig, ServoConfig servoConfig) {
@@ -64,7 +64,7 @@ public class LaunchSystem {
         // --- EQUAL INTERVAL SEQUENCE ---
 
         // STEP 0: First ball prep
-        if (launchStep == 0 && launchTimer.milliseconds() >= activeIntervalMs) {
+        if (launchStep == 0 && launchTimer.milliseconds() >= activeIntervalMs+100) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
             launchStep = 1;
             launchTimer.reset();
@@ -72,7 +72,7 @@ public class LaunchSystem {
         // STEP 1: Reset servo and feed next ball
         else if (launchStep == 1 && launchTimer.milliseconds() >= activeIntervalMs) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-            MotorConfig.intakeMotor.setPower(0.8);
+            MotorConfig.intakeMotor.setPower(1);
             launchStep = 2;
             launchTimer.reset();
         }

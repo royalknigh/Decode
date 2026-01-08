@@ -15,7 +15,7 @@ public class ServoConfig {
         rightTurretServo = hardwareMap.get(CRServo.class, "rightTurret");
         launchServo = hardwareMap.get(Servo.class, "ls");
         hoodServo = hardwareMap.get(Servo.class, "hood");
-        launchServo.setDirection(Servo.Direction.REVERSE);
+        launchServo.setDirection(Servo.Direction.FORWARD);
 
     }
     public void setServoPos(double lT, double rT, double l){

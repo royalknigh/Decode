@@ -24,7 +24,7 @@ public class Tele extends OpMode {
     private State state;
     private boolean lastB = false; // Alliance Toggle
     private boolean lastA = false; // Turret Toggle
-    private double hoodPosition;
+    private double hoodPosition=0.5;
 
     // --- Hardware Controllers ---
     private MotorConfig motorConfig;
@@ -162,15 +162,18 @@ public class Tele extends OpMode {
     }
 
     private void handleHood() {
-        if (limelightController.getDistance() < 90) {
-            double x = limelightController.getDistance();
-            hoodPosition = -0.00490762*x+0.910469;
-            hoodPosition = Range.clip(hoodPosition, 0, 1);
-            servoConfig.hoodServo.setPosition(hoodPosition);
-        }
-        else
-            hoodPosition = 1;
+       if (limelightController.getDistance() < 90) {
+           double x = limelightController.getDistance();
+           hoodPosition = 0.000235*x*x -0.03207*x+1.7471;
+         hoodPosition = Range.clip(hoodPosition, 0, 1);
 
+       }
+       else
+           hoodPosition = 0.98;
+
+//        if(gamepad1.dpad_up)    hoodPosition+= 0.002;
+//        if(gamepad1.dpad_down)    hoodPosition-= 0.002;
+////
         servoConfig.hoodServo.setPosition(hoodPosition);
     }
 

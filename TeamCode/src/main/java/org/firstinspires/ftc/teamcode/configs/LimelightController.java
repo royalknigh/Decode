@@ -9,8 +9,8 @@ public class LimelightController {
     private boolean isTrackingEnabled = false;
 
     // Adjusted constants for better physical response
-    private static final double TARGET_X_OFFSET = 0.0;
-    private static final double TURRET_KP = 0.02; // Increased from 0.01 for more "kick"
+    private static double TARGET_X_OFFSET =0;
+    private static final double TURRET_KP = 0.015; // Increased from 0.01 for more "kick"
     private static final double ERROR_DEADBAND_DEGREES = 0.5;
     private static final double MAX_SERVO_SPEED = 1.0;
 

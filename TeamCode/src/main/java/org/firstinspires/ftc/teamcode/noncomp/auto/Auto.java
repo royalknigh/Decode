@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.noncomp.auto;
-
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import static org.firstinspires.ftc.teamcode.configs.MotorConfig.launchMotor1;
 import static org.firstinspires.ftc.teamcode.configs.MotorConfig.launchMotor2;
 import static org.firstinspires.ftc.teamcode.configs.ServoConfig.launchServo;
-
+import org.firstinspires.ftc.teamcode.configs.LimelightController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -25,7 +26,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Auto")
 public class Auto extends OpMode {
-
+    private LimelightController limelightController;
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private MotorConfig motorConfig;
@@ -48,6 +49,9 @@ public class Auto extends OpMode {
     private int launchCount = 0;
     private int launchStep = 0;
     boolean resetTimer = true;
+
+
+
     public void buildPaths() {
 
         scorePreload = follower
@@ -249,9 +253,10 @@ public class Auto extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        limelightController.toggleTracking();
         motorConfig = new MotorConfig(hardwareMap);
-         DcMotor launchMotor1 = null;
-         DcMotor launchMotor2 = null;
+        DcMotor launchMotor1 = null;
+        DcMotor launchMotor2 = null;
         launchMotor1 = hardwareMap.get(DcMotor.class, "lm1");
         launchMotor2 = hardwareMap.get(DcMotor.class, "lm2");
         launchMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -267,7 +272,9 @@ public class Auto extends OpMode {
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        limelightController.updateTracking();
+    }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/

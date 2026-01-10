@@ -33,13 +33,13 @@ public class Auto extends OpMode {
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
     private final Pose startPose = new Pose(56, 8, Math.toRadians(90));
-    private final Pose scorePose = new Pose(63, 115, Math.toRadians(150));
-    private final Pose fisrtLinePose = new Pose(55, 96, Math.toRadians(180));
-    private final Pose pickup1Pose = new Pose(29, 96, Math.toRadians(180));
-    private final Pose secondLinePose = new Pose(55, 72, Math.toRadians(180));
-    private final Pose pickup2Pose = new Pose(24, 72, Math.toRadians(180));
-    private final Pose thirdLinePose = new Pose(55, 45, Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(24, 45, Math.toRadians(180));
+    private final Pose scorePose = new Pose(70, 105, Math.toRadians(150));
+    private final Pose fisrtLinePose = new Pose(55, 90, Math.toRadians(180));
+    private final Pose pickup1Pose = new Pose(30, 90, Math.toRadians(180));
+    private final Pose secondLinePose = new Pose(55, 67, Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(30, 67, Math.toRadians(180));
+    private final Pose thirdLinePose = new Pose(55, 44, Math.toRadians(180));
+    private final Pose pickup3Pose = new Pose(30, 44, Math.toRadians(180));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2, score2, alignRow3, pickupRow3, score3;
 
@@ -79,11 +79,12 @@ public class Auto extends OpMode {
     private void performLaunch(int nextState, PathChain nextPath) {
         if (!follower.isBusy()) {
             if (!launchStarted) {
-                launchSystem.start(LaunchSystem.HIGH_VELOCITY, 800);
+                launchSystem.start(LaunchSystem.LOW_VELOCITY, 800);
                 launchStarted = true;
             }
             if (launchSystem.update()) {
                 launchStarted = false;
+                limelightController.toggleTracking();
                 if (nextPath != null) follower.followPath(nextPath);
                 setPathState(nextState);
             }
@@ -93,8 +94,8 @@ public class Auto extends OpMode {
     private void performPickup(PathChain pickupPath, int nextState) {
         if (!follower.isBusy()) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-            motorConfig.intakeMotor.setPower(1);
-            follower.setMaxPower(0.4);
+            motorConfig.intakeMotor.setPower(0.8);
+            follower.setMaxPower(0.2);
             follower.followPath(pickupPath);
             setPathState(nextState);
         }
@@ -105,6 +106,7 @@ public class Auto extends OpMode {
             motorConfig.intakeMotor.setPower(0);
             follower.setMaxPower(1.0);
             follower.followPath(scorePath);
+            limelightController.toggleTracking();
             setPathState(nextState);
         }
     }
@@ -113,6 +115,7 @@ public class Auto extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
+                limelightController.toggleTracking();
                 setPathState(1);
                 break;
             case 1:
@@ -171,6 +174,7 @@ public class Auto extends OpMode {
             alliance = (alliance == LimelightController.Alliance.BLUE) ? LimelightController.Alliance.RED : LimelightController.Alliance.BLUE;
             limelightController.setAlliance(alliance);
         }
+        motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
         lastB = gamepad1.b;
         telemetry.addData("Alliance", alliance);
         telemetry.update();

@@ -50,8 +50,8 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
 
         public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
-            .forwardTicksToInches(.0021)
-            .strafeTicksToInches(-0.002)
+            .forwardTicksToInches(0.00195864331)
+            .strafeTicksToInches(-0.001957443)
             .turnTicksToInches(.002)
             .leftPodY(4.8)
             .rightPodY(-4.8)

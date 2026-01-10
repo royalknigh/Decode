@@ -21,7 +21,7 @@ public class LaunchSystem {
     public static final double HIGH_VELOCITY = 1750.0;
     public static final double LOW_VELOCITY = 1300.0;
     public static final double IDLE_VELOCITY = 900;
-    public static final double INIT_VELOCITY = 800;
+    public static final double INIT_VELOCITY = 0;
 
     public LaunchSystem(MotorConfig motorConfig, ServoConfig servoConfig) {
         this.motorConfig = motorConfig;

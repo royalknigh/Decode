@@ -52,7 +52,7 @@ public class Constants {
         public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
             .forwardTicksToInches(0.00195864331)
             .strafeTicksToInches(-0.001957443)
-            .turnTicksToInches(.002)
+            .turnTicksToInches(.0019764)
             .leftPodY(4.8)
             .rightPodY(-4.8)
             .strafePodX(-4.6)

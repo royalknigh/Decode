@@ -32,23 +32,23 @@ public class Auto extends OpMode {
     private boolean launchStarted = false;
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
-    private final Pose startPose = new Pose(56, 8, Math.toRadians(90));
-    private final Pose scorePose = new Pose(70, 105, Math.toRadians(150));
-    private final Pose fisrtLinePose = new Pose(55, 90, Math.toRadians(180));
-    private final Pose pickup1Pose = new Pose(30, 90, Math.toRadians(180));
-    private final Pose secondLinePose = new Pose(55, 67, Math.toRadians(180));
-    private final Pose pickup2Pose = new Pose(30, 67, Math.toRadians(180));
-    private final Pose thirdLinePose = new Pose(55, 44, Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(30, 44, Math.toRadians(180));
+    private final Pose startPose = new Pose(57, 135, Math.toRadians(180));
+    private final Pose scorePose = new Pose(57, 95, Math.toRadians(150));
+    private final Pose fisrtLinePose = new Pose(46, 84, Math.toRadians(180));
+    private final Pose pickup1Pose = new Pose(23, 84, Math.toRadians(180));
+    private final Pose secondLinePose = new Pose(46, 60, Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(20, 60, Math.toRadians(180));
+    private final Pose thirdLinePose = new Pose(46, 36, Math.toRadians(180));
+    private final Pose pickup3Pose = new Pose(20, 36, Math.toRadians(180));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2, score2, alignRow3, pickupRow3, score3;
 
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierCurve(startPose, new Pose(75, 83), scorePose))
+                .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading()).build();
 
-        alignRow1 = follower.pathBuilder().addPath(new BezierCurve(scorePose, new Pose(58, 96), fisrtLinePose))
+        alignRow1 = follower.pathBuilder().addPath(new BezierLine(scorePose, fisrtLinePose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), fisrtLinePose.getHeading()).build();
 
         pickupRow1 = follower.pathBuilder().addPath(new BezierLine(fisrtLinePose, pickup1Pose))
@@ -57,13 +57,13 @@ public class Auto extends OpMode {
         score1 = follower.pathBuilder().addPath(new BezierLine(pickup1Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading()).build();
 
-        alignRow2 = follower.pathBuilder().addPath(new BezierCurve(scorePose, secondLinePose))
+        alignRow2 = follower.pathBuilder().addPath(new BezierLine(scorePose, secondLinePose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), secondLinePose.getHeading()).build();
 
         pickupRow2 = follower.pathBuilder().addPath(new BezierLine(secondLinePose, pickup2Pose))
                 .setLinearHeadingInterpolation(secondLinePose.getHeading(), pickup2Pose.getHeading()).build();
 
-        score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(60, 60), scorePose))
+        score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(48, 55), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading()).build();
 
         alignRow3 = follower.pathBuilder().addPath(new BezierLine(scorePose, thirdLinePose))
@@ -72,7 +72,7 @@ public class Auto extends OpMode {
         pickupRow3 = follower.pathBuilder().addPath(new BezierLine(thirdLinePose, pickup3Pose))
                 .setLinearHeadingInterpolation(thirdLinePose.getHeading(), pickup3Pose.getHeading()).build();
 
-        score3 = follower.pathBuilder().addPath(new BezierCurve(pickup3Pose, new Pose(50, 55), scorePose))
+        score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading()).build();
     }
 

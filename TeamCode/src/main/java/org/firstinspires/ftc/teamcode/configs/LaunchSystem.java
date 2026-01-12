@@ -64,7 +64,7 @@ public class LaunchSystem {
         // --- EQUAL INTERVAL SEQUENCE ---
 
         // STEP 0: First ball prep
-        if (launchStep == 0 && launchTimer.milliseconds() >= activeIntervalMs+300) {
+        if (launchStep == 0 && launchTimer.milliseconds() >= activeIntervalMs+200) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
             launchStep = 1;
             launchTimer.reset();

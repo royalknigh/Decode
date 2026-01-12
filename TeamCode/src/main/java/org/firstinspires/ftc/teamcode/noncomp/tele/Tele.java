@@ -131,11 +131,11 @@ public class Tele extends OpMode {
             case INIT:
                 if (gamepad1.left_trigger > 0.1) state = State.INTAKE;
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 1000);
+                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 800);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 800);
+                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 600);
                     state = State.LAUNCH;
                 }
                 break;
@@ -143,11 +143,11 @@ public class Tele extends OpMode {
             case INTAKE:
                 motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 1000);
+                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 800);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 800);
+                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 600);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.left_trigger <= 0.1) state = State.INIT;
@@ -165,7 +165,7 @@ public class Tele extends OpMode {
        if (limelightController.getDistance() < 90) {
            double x = limelightController.getDistance();
            hoodPosition = 0.000235*x*x -0.03207*x+1.7471;
-         hoodPosition = Range.clip(hoodPosition, 0, 1);
+         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
 
        }
        else

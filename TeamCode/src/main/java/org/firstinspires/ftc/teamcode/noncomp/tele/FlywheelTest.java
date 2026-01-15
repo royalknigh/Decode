@@ -1,25 +1,28 @@
 package org.firstinspires.ftc.teamcode.noncomp.tele;
 
+import androidx.core.text.util.LocalePreferences;
+
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
+@Configurable
 @TeleOp(name = "Dual Motor Single PID Tuner", group = "Tuning")
 public class FlywheelTest extends OpMode {
 
     private DcMotorEx motor1, motor2;
 
     // Target Velocities
-    public double highVelocity = 1500.0;
-    public double lowVelocity = 900.0;
-    public double curTargetVelocity;
+    public static double highVelocity = 1500.0;
+    public static double lowVelocity = 900.0;
+    public static double curTargetVelocity;
 
     // Single PIDF Shared Constants
-    public double P = 0.0;
-    public double F = 0.0;
+    public static double P = 0.0;
+    public static double F = 0.0;
 
     double[] stepSizes = {10.0, 1.0, 0.1, 0.01, 0.001};
     int stepIndex = 1;

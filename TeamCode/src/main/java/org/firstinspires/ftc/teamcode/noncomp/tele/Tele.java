@@ -12,6 +12,15 @@ import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 
+import com.bylazar.configurables.PanelsConfigurables;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.configurables.annotations.IgnoreConfigurable;
+import com.bylazar.field.FieldManager;
+import com.bylazar.field.PanelsField;
+import com.bylazar.field.Style;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+
 @Configurable
 @TeleOp(name="Full Control Competition TeleOp", group="Iterative OpMode")
 public class Tele extends OpMode {
@@ -95,10 +104,8 @@ public class Tele extends OpMode {
         telemetry.addData("State", state);
         telemetry.addData("Alliance", alliance);
         telemetry.addData("Turret Tracking (A)", limelightController.isTrackingEnabled() ? "ACTIVE" : "OFF");
-
+        telemetry.addData("speed", motorConfig.launchMotor1.getVelocity());
         telemetry.addLine("\n=== LAUNCHER & HOOD ===");
-        telemetry.addData("Launch Mode", launchSystem.getStatus());
-        telemetry.addData("Flywheel Velocity", "%.0f", launchSystem.getVelocity());
         telemetry.addData("Hood Pos", "%.3f", hoodPosition);
 
         telemetry.addLine("\n=== TARGETING INFO ===");
@@ -131,11 +138,11 @@ public class Tele extends OpMode {
             case INIT:
                 if (gamepad1.left_trigger > 0.1) state = State.INTAKE;
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 800);
+                    launchSystem.start(LaunchSystem.highVelocity, 800);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 600);
+                    launchSystem.start(LaunchSystem.lowVelocity, 600);
                     state = State.LAUNCH;
                 }
                 break;
@@ -143,11 +150,11 @@ public class Tele extends OpMode {
             case INTAKE:
                 motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.HIGH_VELOCITY, 800);
+                    launchSystem.start(LaunchSystem.highVelocity, 800);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.LOW_VELOCITY, 600);
+                    launchSystem.start(LaunchSystem.lowVelocity, 600);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.left_trigger <= 0.1) state = State.INIT;
@@ -162,14 +169,14 @@ public class Tele extends OpMode {
     }
 
     private void handleHood() {
-//       if (limelightController.getDistance() < 90) {
-//           double x = limelightController.getDistance();
-//           hoodPosition =-0.0023*x+0.8875;
-//         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
-//
-//       }
-//       else
-//           hoodPosition = 0.98;
+       if (limelightController.getDistance() < 90) {
+           double x = limelightController.getDistance();
+           hoodPosition =-0.006*x+0.946667;
+         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+
+       }
+       else
+           hoodPosition = 0.95;
 
         if(gamepad1.dpad_up)    hoodPosition+= 0.002;
         if(gamepad1.dpad_down)    hoodPosition-= 0.002;

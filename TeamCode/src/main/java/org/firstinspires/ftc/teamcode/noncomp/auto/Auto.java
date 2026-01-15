@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.constants.ServoConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Auto Clean")
+@Autonomous(name = "Auto Blue LaunchOnFly")
 public class Auto extends OpMode {
     private LimelightController limelightController;
     private Follower follower;
@@ -29,9 +29,9 @@ public class Auto extends OpMode {
 
     private int pathState = 0;
     private boolean lastB = false;
-    private boolean launchStarted = false;
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
+    // Blue Side Poses
     private final Pose startPose = new Pose(57, 135, Math.toRadians(180));
     private final Pose scorePose = new Pose(57, 95, Math.toRadians(150));
     private final Pose fisrtLinePose = new Pose(46, 82, Math.toRadians(180));
@@ -46,7 +46,9 @@ public class Auto extends OpMode {
     public void buildPaths() {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading()).build();
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.LOW_VELOCITY, 800))
+                .build();
 
         alignRow1 = follower.pathBuilder().addPath(new BezierLine(scorePose, fisrtLinePose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), fisrtLinePose.getHeading()).build();
@@ -55,9 +57,11 @@ public class Auto extends OpMode {
                 .setLinearHeadingInterpolation(fisrtLinePose.getHeading(), pickup1Pose.getHeading()).build();
 
         score1 = follower.pathBuilder().addPath(new BezierLine(pickup1Pose, scorePose))
-                .addParametricCallback(0.1, ()->motorConfig.intakeMotor.setPower(0.5))
-                .addParametricCallback(0.8, ()->motorConfig.intakeMotor.setPower(0))
-                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading()).build();
+                .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0.5))
+                .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.LOW_VELOCITY, 800))
+                .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
+                .build();
 
         alignRow2 = follower.pathBuilder().addPath(new BezierLine(scorePose, secondLinePose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), secondLinePose.getHeading()).build();
@@ -66,9 +70,11 @@ public class Auto extends OpMode {
                 .setLinearHeadingInterpolation(secondLinePose.getHeading(), pickup2Pose.getHeading()).build();
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(48, 55), scorePose))
-                .addParametricCallback(0.1, ()->motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.8, ()->motorConfig.intakeMotor.setPower(0))
-                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading()).build();
+                .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0.7))
+                .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.LOW_VELOCITY, 800))
+                .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
+                .build();
 
         alignRow3 = follower.pathBuilder().addPath(new BezierLine(scorePose, thirdLinePose))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), thirdLinePose.getHeading()).build();
@@ -77,19 +83,17 @@ public class Auto extends OpMode {
                 .setLinearHeadingInterpolation(thirdLinePose.getHeading(), pickup3Pose.getHeading()).build();
 
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
-                .addParametricCallback(0.1, ()->motorConfig.intakeMotor.setPower(0.6))
-                .addParametricCallback(0.8, ()->motorConfig.intakeMotor.setPower(0))
-                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading()).build();
+                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0.6))
+                .addParametricCallback(0.6, () -> launchSystem.start(LaunchSystem.LOW_VELOCITY, 800))
+                .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
+                .build();
     }
 
-    private void performLaunch(int nextState, PathChain nextPath) {
+    private void handleStateTransition(int nextState, PathChain nextPath) {
         if (!follower.isBusy()) {
-            if (!launchStarted) {
-                launchSystem.start(LaunchSystem.LOW_VELOCITY, 800);
-                launchStarted = true;
-            }
+            // launchSystem.update() returns true when the firing sequence is done
             if (launchSystem.update()) {
-                launchStarted = false;
                 limelightController.toggleTracking();
                 if (nextPath != null) follower.followPath(nextPath);
                 setPathState(nextState);
@@ -100,8 +104,8 @@ public class Auto extends OpMode {
     private void performPickup(PathChain pickupPath, int nextState) {
         if (!follower.isBusy()) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-            motorConfig.intakeMotor.setPower(0.9);
-            follower.setMaxPower(0.75);
+            motorConfig.intakeMotor.setPower(1);
+            follower.setMaxPower(0.7);
             follower.followPath(pickupPath);
             setPathState(nextState);
         }
@@ -109,7 +113,6 @@ public class Auto extends OpMode {
 
     private void returnToScore(PathChain scorePath, int nextState) {
         if (!follower.isBusy()) {
-//            motorConfig.intakeMotor.setPower(0.5);
             follower.setMaxPower(1.0);
             follower.followPath(scorePath);
             limelightController.toggleTracking();
@@ -125,7 +128,7 @@ public class Auto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                performLaunch(2, alignRow1);
+                handleStateTransition(2, alignRow1);
                 break;
             case 2:
                 performPickup(pickupRow1, 3);
@@ -134,7 +137,7 @@ public class Auto extends OpMode {
                 returnToScore(score1, 4);
                 break;
             case 4:
-                performLaunch(5, alignRow2);
+                handleStateTransition(5, alignRow2);
                 break;
             case 5:
                 performPickup(pickupRow2, 6);
@@ -143,7 +146,7 @@ public class Auto extends OpMode {
                 returnToScore(score2, 7);
                 break;
             case 7:
-                performLaunch(8, alignRow3);
+                handleStateTransition(8, alignRow3);
                 break;
             case 8:
                 performPickup(pickupRow3, 9);
@@ -152,7 +155,7 @@ public class Auto extends OpMode {
                 returnToScore(score3, 10);
                 break;
             case 10:
-                performLaunch(-1, null);
+                handleStateTransition(-1, null);
                 break;
         }
     }
@@ -175,29 +178,18 @@ public class Auto extends OpMode {
     }
 
     @Override
-    public void init_loop() {
-        if (gamepad1.b && !lastB) {
-            alliance = (alliance == LimelightController.Alliance.BLUE) ? LimelightController.Alliance.RED : LimelightController.Alliance.BLUE;
-            limelightController.setAlliance(alliance);
-        }
-        motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
-        lastB = gamepad1.b;
-        telemetry.addData("Alliance", alliance);
-        telemetry.update();
-    }
-
-    @Override
-    public void start() {
-        setPathState(0);
-    }
-
-    @Override
     public void loop() {
         follower.update();
         limelightController.updateTracking();
         handleHood();
+
+        // Essential: Keep the launcher state machine running independently of paths
+        launchSystem.update();
+
         autonomousPathUpdate();
+
         telemetry.addData("Path State", pathState);
+        telemetry.addData("Follower Busy", follower.isBusy());
         telemetry.update();
     }
 
@@ -206,4 +198,7 @@ public class Auto extends OpMode {
         double pos = (dist < 90) ? (0.000235 * dist * dist - 0.03207 * dist + 1.7471) : 0.98;
         servoConfig.hoodServo.setPosition(Range.clip(pos, 0, 1));
     }
+
+    @Override public void init_loop() { /* Alliance selection logic here if needed */ }
+    @Override public void start() { setPathState(0); }
 }

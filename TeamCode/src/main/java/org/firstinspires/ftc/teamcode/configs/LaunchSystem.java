@@ -77,7 +77,7 @@ public class LaunchSystem {
             launchTimer.reset();
         }
         // STEP 2: Stop intake and prep second ball
-        else if (launchStep == 2 && launchTimer.milliseconds() >= activeIntervalMs) {
+        else if (launchStep == 2 && launchTimer.milliseconds() >= activeIntervalMs+200) {
             MotorConfig.intakeMotor.setPower(0);
             servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
             launchStep = 3;

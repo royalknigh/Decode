@@ -162,17 +162,18 @@ public class Tele extends OpMode {
     }
 
     private void handleHood() {
-       if (limelightController.getDistance() < 90) {
-           double x = limelightController.getDistance();
-           hoodPosition = 0.000235*x*x -0.03207*x+1.7471;
-         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+//       if (limelightController.getDistance() < 90) {
+//           double x = limelightController.getDistance();
+//           hoodPosition =-0.0023*x+0.8875;
+//         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+//
+//       }
+//       else
+//           hoodPosition = 0.98;
 
-       }
-       else
-           hoodPosition = 0.98;
-
-//        if(gamepad1.dpad_up)    hoodPosition+= 0.002;
-//        if(gamepad1.dpad_down)    hoodPosition-= 0.002;
+        if(gamepad1.dpad_up)    hoodPosition+= 0.002;
+        if(gamepad1.dpad_down)    hoodPosition-= 0.002;
+        hoodPosition = Range.clip(hoodPosition, 0, 0.98);
 ////
         servoConfig.hoodServo.setPosition(hoodPosition);
     }

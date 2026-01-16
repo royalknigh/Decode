@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 @Configurable
-@TeleOp(name = "Dual Motor Single PID Tuner", group = "Tuning")
+@TeleOp(name = "PID Tuner", group = "Tuning")
 public class FlywheelTest extends OpMode {
 
     private DcMotorEx motor1, motor2;

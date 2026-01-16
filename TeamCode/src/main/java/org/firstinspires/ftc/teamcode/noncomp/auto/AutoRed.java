@@ -16,9 +16,10 @@ import org.firstinspires.ftc.teamcode.configs.LimelightController;
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
 import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.constants.ServoConstants;
+import org.firstinspires.ftc.teamcode.noncomp.tele.Tele;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Autonomous(name = "Auto Red Full")
+@Autonomous(name = "Auto Red Short")
 public class AutoRed extends OpMode {
     private LimelightController limelightController;
     private Follower follower;
@@ -32,7 +33,7 @@ public class AutoRed extends OpMode {
     public static LimelightController.Alliance alliance = LimelightController.Alliance.RED;
 
     // Mirrored Red Poses
-    private final Pose startPose = new Pose(87, 135, Math.toRadians(0));
+    private final Pose startPose = new Pose(117, 120, Math.toRadians(37));
     private final Pose scorePose = new Pose(87, 95, Math.toRadians(30));
     private final Pose fisrtLinePose = new Pose(98, 82, Math.toRadians(0));
     private final Pose pickup1Pose = new Pose(124, 82, Math.toRadians(0));
@@ -41,14 +42,15 @@ public class AutoRed extends OpMode {
     private final Pose thirdLinePose = new Pose(98, 35, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(131, 35, Math.toRadians(0));
 
-    private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2, score2, alignRow3, pickupRow3, score3;
+    private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2,
+            pickupRow2, score2, alignRow3, pickupRow3, score3, park;
 
     public void buildPaths() {
         // Preload: Start spinning wheels immediately
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0.1, () -> launchSystem.start(LaunchSystem.lowVelocity, 800))
+                .addParametricCallback(0.1, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
         alignRow1 = follower.pathBuilder().addPath(new BezierLine(scorePose, fisrtLinePose))
@@ -75,9 +77,9 @@ public class AutoRed extends OpMode {
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(90, 60), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0.6, () -> {
+                .addParametricCallback(0.7, () -> {
                     motorConfig.intakeMotor.setPower(0.7);
-                    launchSystem.start(LaunchSystem.lowVelocity, 800);
+                    launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })
                 .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
                 .build();
@@ -92,9 +94,13 @@ public class AutoRed extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0.8, () -> {
                     motorConfig.intakeMotor.setPower(0.6);
-                    launchSystem.start(LaunchSystem.lowVelocity, 800);
+                    launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })
                 .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
+                .build();
+        park = follower.pathBuilder()
+                .addPath(new BezierLine(scorePose, fisrtLinePose))
+                .setConstantHeadingInterpolation(scorePose.getHeading())
                 .build();
     }
 
@@ -164,7 +170,8 @@ public class AutoRed extends OpMode {
                 returnToScore(score3, 10);
                 break;
             case 10:
-                performLaunchSequence(-1, null);
+                performLaunchSequence(-1, park);
+                follower.setMaxPower(1);
                 break;
         }
     }

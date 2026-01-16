@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
@@ -12,30 +13,21 @@ import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 
-import com.bylazar.configurables.PanelsConfigurables;
-import com.bylazar.configurables.annotations.Configurable;
-import com.bylazar.configurables.annotations.IgnoreConfigurable;
-import com.bylazar.field.FieldManager;
-import com.bylazar.field.PanelsField;
-import com.bylazar.field.Style;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
-
 @Configurable
-@TeleOp(name="Full Control Competition TeleOp", group="Iterative OpMode")
+@TeleOp(name="TeleOp Decode", group="Iterative OpMode")
 public class Tele extends OpMode {
 
-    // --- Configuration Variables (Visible in Panels) ---
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
-    // --- Logic & State ---
     private enum State {INIT, INTAKE, LAUNCH}
     private State state;
-    private boolean lastB = false; // Alliance Toggle
-    private boolean lastA = false; // Turret Toggle
-    private double hoodPosition=0.5;
+    private boolean lastB = false;
+    private boolean lastA = false;
+    private double hoodPosition = 0.5;
 
-    // --- Hardware Controllers ---
+    public static int lowTime= 600;
+    public static int highTime =800;
+
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private LaunchSystem launchSystem;
@@ -46,85 +38,46 @@ public class Tele extends OpMode {
         motorConfig = new MotorConfig(hardwareMap);
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
-
-        limelightController = new LimelightController(
-                hardwareMap.get(Limelight3A.class, "limelight"),
-                servoConfig
-        );
+        limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
 
         servoConfig.setInitPos();
         state = State.INIT;
-
-        telemetry.addData("Status", "Initialized. B to Toggle Alliance.");
     }
 
     @Override
     public void init_loop() {
-        // Alliance Toggle (B)
         if (gamepad1.b && !lastB) {
             alliance = (alliance == LimelightController.Alliance.BLUE) ?
                     LimelightController.Alliance.RED : LimelightController.Alliance.BLUE;
             limelightController.setAlliance(alliance);
-            gamepad1.rumble(250);
         }
         lastB = gamepad1.b;
-
-        telemetry.addLine("--- PRE-MATCH CONFIG ---");
-        telemetry.addData("Alliance (B)", alliance);
-        telemetry.addData("Pipeline", (alliance == LimelightController.Alliance.BLUE) ? "5 (Blue)" : "6 (Red)");
-        telemetry.update();
     }
 
     @Override
     public void loop() {
-        // --- TURRET TOGGLE (A) ---
         if (gamepad1.a && !lastA) {
             limelightController.toggleTracking();
-            if (limelightController.isTrackingEnabled()) {
-                gamepad1.rumbleBlips(2); // Double pulse for ON
-            } else {
-                gamepad1.rumble(500);      // Long pulse for OFF
-            }
         }
         lastA = gamepad1.a;
 
-        // 1. Update Subsystems
         limelightController.updateTracking();
-
-        // 2. Handle Driver Inputs
         handleMovement();
         handleStateMachine();
         handleHood();
 
-        if(gamepad1.rightBumperWasPressed())
-            launchSystem.fullStop();
+        if(gamepad1.right_bumper) launchSystem.fullStop();
 
-        // 3. Combined Telemetry (Original + New)
-        telemetry.addLine("=== SYSTEM STATUS ===");
         telemetry.addData("State", state);
-        telemetry.addData("Alliance", alliance);
-        telemetry.addData("Turret Tracking (A)", limelightController.isTrackingEnabled() ? "ACTIVE" : "OFF");
-        telemetry.addData("speed", motorConfig.launchMotor1.getVelocity());
-        telemetry.addLine("\n=== LAUNCHER & HOOD ===");
-        telemetry.addData("Hood Pos", "%.3f", hoodPosition);
-
-        telemetry.addLine("\n=== TARGETING INFO ===");
-        LLResult res = limelightController.getLatestResult();
-        if (res != null && res.isValid()) {
-            telemetry.addData("Limelight", "LOCKED");
-            telemetry.addData("Distance", "%.2f in", limelightController.getDistance());
-            telemetry.addData("Target X (TX)", "%.2f", res.getTx());
-        } else {
-            telemetry.addData("Limelight", "SEARCHING...");
-        }
-
+        telemetry.addData("Velocity", motorConfig.launchMotor1.getVelocity());
+        telemetry.addData("Distance", limelightController.getDistance());
         telemetry.update();
     }
 
     private void handleMovement() {
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x;
-        double rx = gamepad1.right_stick_x/2;
+        double rx = gamepad1.right_stick_x / 2.0;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
         motorConfig.setMotorPowers(
@@ -138,11 +91,11 @@ public class Tele extends OpMode {
             case INIT:
                 if (gamepad1.left_trigger > 0.1) state = State.INTAKE;
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.highVelocity, 800);
+                    launchSystem.start(LaunchSystem.highVelocity, highTime);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.lowVelocity, 600);
+                    launchSystem.start(LaunchSystem.lowVelocity, lowTime);
                     state = State.LAUNCH;
                 }
                 break;
@@ -150,14 +103,17 @@ public class Tele extends OpMode {
             case INTAKE:
                 motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
                 if (gamepad1.x) {
-                    launchSystem.start(LaunchSystem.highVelocity, 800);
+                    launchSystem.start(LaunchSystem.highVelocity, highTime);
                     state = State.LAUNCH;
                 }
                 if (gamepad1.y) {
-                    launchSystem.start(LaunchSystem.lowVelocity, 600);
+                    launchSystem.start(LaunchSystem.lowVelocity, lowTime);
                     state = State.LAUNCH;
                 }
-                if (gamepad1.left_trigger <= 0.1) state = State.INIT;
+                if (gamepad1.left_trigger <= 0.1) {
+                    motorConfig.intakeMotor.setPower(0);
+                    state = State.INIT;
+                }
                 break;
 
             case LAUNCH:
@@ -169,20 +125,17 @@ public class Tele extends OpMode {
     }
 
     private void handleHood() {
-       if (limelightController.getDistance() < 90) {
-           double x = limelightController.getDistance();
-           hoodPosition =-0.006*x+0.946667;
-         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+        double x = limelightController.getDistance();
+        if (x < 90) {
+            hoodPosition = -0.006 * x + 0.946667;
+        } else {
+            hoodPosition = 0.95;
+        }
 
-       }
-       else
-           hoodPosition = 0.95;
+        if(gamepad1.dpad_up) hoodPosition += 0.002;
+        if(gamepad1.dpad_down) hoodPosition -= 0.002;
 
-        if(gamepad1.dpad_up)    hoodPosition+= 0.002;
-        if(gamepad1.dpad_down)    hoodPosition-= 0.002;
         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
-////
         servoConfig.hoodServo.setPosition(hoodPosition);
     }
-
 }

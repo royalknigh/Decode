@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.configs;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,16 +15,12 @@ public class LaunchSystem {
     private boolean isLaunching = false;
     private double currentTargetVelocity = 0;
 
-    // --- PANELS CONFIGURABLE CONSTANTS ---
-
-    public static double P = 50;
-
-    public static double F = 14.2;
-    public static double highVelocity = 1700.0; // Must be public static
-
-    public static double lowVelocity = 1300.0;
-
-    public static double activeIntervalMs = 600;
+    // --- CONSTANTS ---
+    public static double P = 40.0;
+    public static double F = 14.4;
+    public static double highVelocity = 1800.0;
+    public static double lowVelocity = 1350.0;
+    public static double activeIntervalMs = 600.0;
     public static double prepDelayMs = 200.0;
 
     public LaunchSystem(MotorConfig motorConfig, ServoConfig servoConfig) {
@@ -34,19 +29,15 @@ public class LaunchSystem {
         this.lm1 = MotorConfig.launchMotor1;
         this.lm2 = MotorConfig.launchMotor2;
 
-        // Use EX methods for better velocity control
         lm1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lm2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         lm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        updatePIDF(); // Apply initial P and F
+        updatePIDF();
     }
 
-    /**
-     * Call this at the start of loop() or whenever you change values in Panels
-     */
     public void updatePIDF() {
         lm1.setVelocityPIDFCoefficients(P, 0, 0, F);
         lm2.setVelocityPIDFCoefficients(P, 0, 0, F);
@@ -57,8 +48,11 @@ public class LaunchSystem {
         lm2.setVelocity(velocity);
     }
 
-    public void start(double target, double activeIntervalMs) {
+    public void start(double target, double interval) {
         this.currentTargetVelocity = target;
+        // Fix: Update the class variable with the interval passed from TeleOp
+        LaunchSystem.activeIntervalMs = interval;
+
         launchTimer.reset();
         launchStep = 0;
         isLaunching = true;
@@ -67,13 +61,12 @@ public class LaunchSystem {
 
     public void idle() {
         isLaunching = false;
-        setDualVelocity(900.0); // IDLE_VELOCITY
+        setDualVelocity(900.0);
     }
 
     public boolean update() {
         if (!isLaunching) return true;
 
-        // Ensure PIDF values from the Panel are applied during the run
         updatePIDF();
 
         // STEP 0: First ball prep
@@ -82,14 +75,14 @@ public class LaunchSystem {
             launchStep = 1;
             launchTimer.reset();
         }
-        // STEP 1: Reset servo and feed next ball
+        // STEP 1: Feed ball
         else if (launchStep == 1 && launchTimer.milliseconds() >= activeIntervalMs) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
             MotorConfig.intakeMotor.setPower(1);
             launchStep = 2;
             launchTimer.reset();
         }
-        // STEP 2: Stop intake and prep second ball
+        // STEP 2: Prep second ball
         else if (launchStep == 2 && launchTimer.milliseconds() >= (activeIntervalMs + prepDelayMs)) {
             MotorConfig.intakeMotor.setPower(0);
             servoConfig.launchServo.setPosition(ServoConstants.launch_MID);
@@ -102,23 +95,20 @@ public class LaunchSystem {
             launchStep = 4;
             launchTimer.reset();
         }
-        // STEP 4: Cleanup/Idle
+        // STEP 4: Cleanup
         else if (launchStep == 4 && launchTimer.milliseconds() >= 500) {
             servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
             idle();
             return true;
         }
-
         return false;
     }
+
     public void fullStop() {
-        isLaunching = false;    // Kill the state machine
-        launchStep = 0;         // Reset the sequence
-        setDualVelocity(0);      // Stop flywheel motors
-
-        // Safety: Reset the launch servo to its start position
+        isLaunching = false;
+        launchStep = 0;
+        setDualVelocity(0);
         servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-
-        // Stop any auxiliary motors like the intake
-
-}}
+        MotorConfig.intakeMotor.setPower(0);
+    }
+}

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.noncomp.tele;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,6 +16,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
+@Disabled
 @TeleOp(name="Robot: Drive + Turret + Launch", group="Final")
 public class CombinedRobotOpMode extends LinearOpMode {
 

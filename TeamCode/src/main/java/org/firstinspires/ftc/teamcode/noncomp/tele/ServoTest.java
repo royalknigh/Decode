@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name="CRServo Simple Control")
+@TeleOp(name="CRServo Simple Control", group = "Tuning")
 public class ServoTest extends LinearOpMode {
 
     private CRServo crServo1;

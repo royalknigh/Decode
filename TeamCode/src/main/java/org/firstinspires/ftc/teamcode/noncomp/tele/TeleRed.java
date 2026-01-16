@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 
 @Configurable
-@TeleOp(name="TeleOp Blue", group="Iterative OpMode")
-public class Tele extends OpMode {
+@TeleOp(name="TeleOp Red", group="Iterative OpMode")
+public class TeleRed extends OpMode {
 
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
@@ -39,19 +39,14 @@ public class Tele extends OpMode {
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
-        limelightController.setAlliance(LimelightController.Alliance.BLUE);
+        limelightController.setAlliance(LimelightController.Alliance.RED);
         servoConfig.setInitPos();
         state = State.INIT;
     }
 
     @Override
     public void init_loop() {
-        if (gamepad1.b && !lastB) {
-            alliance = (alliance == LimelightController.Alliance.BLUE) ?
-                    LimelightController.Alliance.RED : LimelightController.Alliance.BLUE;
-            limelightController.setAlliance(alliance);
-        }
-        lastB = gamepad1.b;
+
     }
 
     @Override

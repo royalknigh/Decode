@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.configs.MotorConfig;
 import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
+import org.firstinspires.ftc.teamcode.constants.ServoConstants;
 
 @Configurable
 @TeleOp(name="TeleOp Red", group="Iterative OpMode")
@@ -19,7 +20,7 @@ public class TeleRed extends OpMode {
 
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
-    private enum State {INIT, INTAKE, LAUNCH}
+    private enum State {INIT, INTAKE, LAUNCH, EJECT}
     private State state;
     private boolean lastB = false;
     private boolean lastA = false;
@@ -60,6 +61,7 @@ public class TeleRed extends OpMode {
         handleMovement();
         handleStateMachine();
         handleHood();
+        spit();
 
         if(gamepad1.right_bumper) launchSystem.fullStop();
 
@@ -117,6 +119,10 @@ public class TeleRed extends OpMode {
                     state = State.INIT;
                 }
                 break;
+            case EJECT:
+                if(gamepad1.right_trigger>0.2) motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
+                servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
+
         }
     }
 
@@ -133,5 +139,8 @@ public class TeleRed extends OpMode {
 
         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
         servoConfig.hoodServo.setPosition(hoodPosition);
+    }
+    public void spit(){
+
     }
 }

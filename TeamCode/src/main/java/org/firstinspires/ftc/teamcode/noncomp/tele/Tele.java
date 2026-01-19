@@ -12,6 +12,9 @@ import org.firstinspires.ftc.teamcode.configs.MotorConfig;
 import org.firstinspires.ftc.teamcode.configs.ServoConfig;
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
+import org.firstinspires.ftc.teamcode.constants.ServoConstants;
+
+import kotlinx.coroutines.channels.ChannelSegment;
 
 @Configurable
 @TeleOp(name="TeleOp Blue", group="Iterative OpMode")
@@ -19,7 +22,7 @@ public class Tele extends OpMode {
 
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
-    private enum State {INIT, INTAKE, LAUNCH}
+    private enum State {INIT, INTAKE, LAUNCH, EJECT}
     private State state;
     private boolean lastB = false;
     private boolean lastA = false;
@@ -99,6 +102,10 @@ public class Tele extends OpMode {
                     launchSystem.start(LaunchSystem.lowVelocity, lowTime);
                     state = State.LAUNCH;
                 }
+                if(gamepad1.right_trigger>0.1) {
+                    state = State.EJECT;
+
+                }
                 break;
 
             case INTAKE:
@@ -115,6 +122,10 @@ public class Tele extends OpMode {
                     motorConfig.intakeMotor.setPower(0);
                     state = State.INIT;
                 }
+                if(gamepad1.right_trigger>0.1) {
+                    motorConfig.intakeMotor.setPower(0);
+                    state = State.EJECT;
+                }
                 break;
 
             case LAUNCH:
@@ -122,6 +133,15 @@ public class Tele extends OpMode {
                     state = State.INIT;
                 }
                 break;
+            case EJECT:
+                if(gamepad1.right_trigger>0.1){
+                    motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
+                    servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);}
+                else {
+                    state = State.INIT;
+                    motorConfig.intakeMotor.setPower(0);
+                }
+
         }
     }
 
@@ -138,5 +158,9 @@ public class Tele extends OpMode {
 
         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
         servoConfig.hoodServo.setPosition(hoodPosition);
+    }
+    public void  spit(){
+        if(gamepad1.right_trigger>0) motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
+        servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
     }
 }

@@ -35,13 +35,13 @@ public class AutoBlue extends OpMode {
     // Blue Side Poses
     private final Pose startPose = new Pose(27, 117, Math.toRadians(140));
     private final Pose scorePose = new Pose(57, 95, Math.toRadians(150));
-    private final Pose fisrtLinePose = new Pose(46, 81, Math.toRadians(180));
+    private final Pose fisrtLinePose = new Pose(48, 81, Math.toRadians(180));
     private final Pose pickup1Pose = new Pose(19, 81, Math.toRadians(180));
 //    private final Pose openGatePose = new Pose(13, 68, Math.toRadians(90));
-    private final Pose secondLinePose = new Pose(46, 58, Math.toRadians(180));
-    private final Pose pickup2Pose = new Pose(11, 58, Math.toRadians(180));
-    private final Pose thirdLinePose = new Pose(46, 34, Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(11, 34, Math.toRadians(180));
+    private final Pose secondLinePose = new Pose(48, 58, Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(10, 58, Math.toRadians(180));
+    private final Pose thirdLinePose = new Pose(48, 34, Math.toRadians(180));
+    private final Pose pickup3Pose = new Pose(10, 34, Math.toRadians(180));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2,
             openGate, score2, alignRow3, pickupRow3, score3, park;
@@ -67,6 +67,7 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.8))
                 .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.4, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
@@ -75,11 +76,14 @@ public class AutoBlue extends OpMode {
 
         pickupRow2 = follower.pathBuilder().addPath(new BezierLine(secondLinePose, pickup2Pose))
                 .addParametricCallback(0, () -> follower.setMaxPower(0.4))
+//                .addParametricCallback(0.95, () -> motorConfig.intakeMotor.setPower(0))
                 .setLinearHeadingInterpolation(secondLinePose.getHeading(), pickup2Pose.getHeading()).build();
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(48, 55), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
                 .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.5, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
@@ -88,11 +92,14 @@ public class AutoBlue extends OpMode {
 
         pickupRow3 = follower.pathBuilder().addPath(new BezierLine(thirdLinePose, pickup3Pose))
                 .addParametricCallback(0, () -> follower.setMaxPower(0.4))
+//                .addParametricCallback(0.9, () -> motorConfig.intakeMotor.setPower(0))
                 .setLinearHeadingInterpolation(thirdLinePose.getHeading(), pickup3Pose.getHeading()).build();
 
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
                 .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.6, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.6, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
@@ -127,7 +134,6 @@ public class AutoBlue extends OpMode {
         if (!follower.isBusy()) {
             follower.setMaxPower(1.0);
             follower.followPath(scorePath);
-            limelightController.toggleTracking();
             setPathState(nextState);
         }
     }

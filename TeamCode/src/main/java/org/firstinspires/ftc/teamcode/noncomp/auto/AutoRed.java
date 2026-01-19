@@ -35,11 +35,11 @@ public class AutoRed extends OpMode {
     // Mirrored Red Poses
     private final Pose startPose = new Pose(117, 120, Math.toRadians(37));
     private final Pose scorePose = new Pose(87, 95, Math.toRadians(30));
-    private final Pose fisrtLinePose = new Pose(98, 82, Math.toRadians(0));
+    private final Pose fisrtLinePose = new Pose(96, 82, Math.toRadians(0));
     private final Pose pickup1Pose = new Pose(124, 82, Math.toRadians(0));
-    private final Pose secondLinePose = new Pose(98, 59, Math.toRadians(0));
+    private final Pose secondLinePose = new Pose(96, 59, Math.toRadians(0));
     private final Pose pickup2Pose = new Pose(131, 59, Math.toRadians(0));
-    private final Pose thirdLinePose = new Pose(98, 35, Math.toRadians(0));
+    private final Pose thirdLinePose = new Pose(96, 35, Math.toRadians(0));
     private final Pose pickup3Pose = new Pose(131, 35, Math.toRadians(0));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2,
@@ -77,8 +77,8 @@ public class AutoRed extends OpMode {
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(90, 60), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0, ()-> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.7, () -> {
-                    motorConfig.intakeMotor.setPower(0.7);
                     launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })
                 .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
@@ -92,11 +92,10 @@ public class AutoRed extends OpMode {
 
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
+                .addParametricCallback(0, ()-> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.8, () -> {
-                    motorConfig.intakeMotor.setPower(0.6);
                     launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })
-                .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
                 .build();
         park = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, fisrtLinePose))

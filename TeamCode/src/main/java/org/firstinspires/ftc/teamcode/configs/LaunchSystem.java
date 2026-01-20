@@ -15,11 +15,11 @@ public class LaunchSystem {
     private boolean isLaunching = false;
     private double currentTargetVelocity = 0;
 
-    // --- CONSTANTS ---
+    // --- CONSTANTS --- 1100 - 1500
     public static double P = 40.0;
-    public static double F = 14.4;
-    public static double highVelocity = 1800.0;
-    public static double lowVelocity = 1350.0;
+    public static double F = 15.2;
+    public static double highVelocity = 1600.0;
+    public static double lowVelocity = 1250.0;
     public static double activeIntervalMs = 600.0;
     public static double prepDelayMs = 200.0;
 

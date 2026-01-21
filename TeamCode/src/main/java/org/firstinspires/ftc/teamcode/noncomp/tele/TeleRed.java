@@ -62,7 +62,7 @@ public class TeleRed extends OpMode {
         handleStateMachine();
         handleHood();
         spit();
-
+        manualTurret();
         if(gamepad1.right_bumper) launchSystem.fullStop();
 
         telemetry.addData("State", state);
@@ -142,5 +142,20 @@ public class TeleRed extends OpMode {
     }
     public void spit(){
 
+    }
+    public void manualTurret() {
+        if (!limelightController.isTrackingEnabled()) {
+            if (gamepad1.dpad_right) {
+                servoConfig.leftTurretServo.setPower(1);
+                servoConfig.rightTurretServo.setPower(1);
+            } else if (gamepad1.dpad_left) {
+                servoConfig.leftTurretServo.setPower(-1);
+                servoConfig.rightTurretServo.setPower(-1);
+
+            } else {
+                servoConfig.leftTurretServo.setPower(0);
+                servoConfig.rightTurretServo.setPower(0);
+            }
+        }
     }
 }

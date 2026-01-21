@@ -68,7 +68,7 @@ public class Tele extends OpMode {
         handleMovement();
         handleStateMachine();
         handleHood();
-
+        manualTurret();
         if(gamepad1.right_bumper) launchSystem.fullStop();
 
         telemetry.addData("State", state);
@@ -162,5 +162,20 @@ public class Tele extends OpMode {
     public void  spit(){
         if(gamepad1.right_trigger>0) motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
         servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
+    }
+    public void manualTurret() {
+        if (!limelightController.isTrackingEnabled()) {
+            if (gamepad1.dpad_right) {
+                servoConfig.leftTurretServo.setPower(1);
+                servoConfig.rightTurretServo.setPower(1);
+            } else if (gamepad1.dpad_left) {
+                servoConfig.leftTurretServo.setPower(-1);
+                servoConfig.rightTurretServo.setPower(-1);
+
+            } else {
+                servoConfig.leftTurretServo.setPower(0);
+                servoConfig.rightTurretServo.setPower(0);
+            }
+        }
     }
 }

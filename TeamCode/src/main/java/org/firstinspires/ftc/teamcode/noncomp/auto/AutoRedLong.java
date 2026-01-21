@@ -28,9 +28,9 @@ public class AutoRedLong extends OpMode {
 
     // --- POSES FROM IMAGE ---
     private final Pose startPose = new Pose(87, 10, Math.toRadians(90));
-    private final Pose lineup = new Pose(106, 10, Math.toRadians(90));
-    private final Pose pickupPose = new Pose(14, 45, Math.toRadians(180));
-    private final Pose scorePose = new Pose(56, 12, Math.toRadians(90));
+    private final Pose lineup = new Pose(106, 14, Math.toRadians(0));
+    private final Pose pickupPose = new Pose(121, 14, Math.toRadians(0));
+    private final Pose scorePose = new Pose(56, 12, Math.toRadians(70));
 
 
     private PathChain driveToPickup, driveToScore, pickup;
@@ -52,7 +52,7 @@ public class AutoRedLong extends OpMode {
         // Path 2: From Pickup back to Scoring Zone
         driveToScore = follower.pathBuilder()
                 .addPath(new BezierLine(pickupPose, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0,() -> follower.setMaxPower(1))
                 .addParametricCallback(0.6, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0, () -> limelightController.toggleTracking())

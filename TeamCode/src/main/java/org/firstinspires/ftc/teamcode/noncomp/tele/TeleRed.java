@@ -131,7 +131,7 @@ public class TeleRed extends OpMode {
         if (x < 90) {
             hoodPosition = -0.006 * x + 0.946667;
         } else {
-            hoodPosition = 0.95;
+            hoodPosition = 0.99;
         }
 
         if(gamepad1.dpad_up) hoodPosition += 0.002;

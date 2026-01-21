@@ -30,6 +30,8 @@ public class Tele extends OpMode {
 
     public static int lowTime= 600;
     public static int highTime =800;
+    public static double P = 40.0;
+    public static double F = 15.1;
 
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
@@ -49,12 +51,6 @@ public class Tele extends OpMode {
 
     @Override
     public void init_loop() {
-        if (gamepad1.b && !lastB) {
-            alliance = (alliance == LimelightController.Alliance.BLUE) ?
-                    LimelightController.Alliance.RED : LimelightController.Alliance.BLUE;
-            limelightController.setAlliance(alliance);
-        }
-        lastB = gamepad1.b;
     }
 
     @Override
@@ -150,7 +146,7 @@ public class Tele extends OpMode {
         if (x < 90) {
             hoodPosition = -0.006 * x + 0.946667;
         } else {
-            hoodPosition = 0.95;
+            hoodPosition = 0.99;
         }
 
         if(gamepad1.dpad_up) hoodPosition += 0.002;

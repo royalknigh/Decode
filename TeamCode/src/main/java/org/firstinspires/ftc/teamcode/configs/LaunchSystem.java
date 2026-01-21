@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.configs;
 
+import static org.firstinspires.ftc.teamcode.noncomp.tele.Tele.F;
+import static org.firstinspires.ftc.teamcode.noncomp.tele.Tele.P;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.constants.ServoConstants;
+import org.firstinspires.ftc.teamcode.noncomp.tele.Tele;
 
 public class LaunchSystem {
     private MotorConfig motorConfig;
@@ -16,8 +20,7 @@ public class LaunchSystem {
     private double currentTargetVelocity = 0;
 
     // --- CONSTANTS --- 1100 - 1500
-    public static double P = 40.0;
-    public static double F = 15.2;
+
     public static double highVelocity = 1600.0;
     public static double lowVelocity = 1250.0;
     public static double activeIntervalMs = 600.0;

@@ -28,9 +28,9 @@ public class AutoBlueLong extends OpMode {
 
     // --- POSES FROM IMAGE ---
     private final Pose startPose = new Pose(56, 10, Math.toRadians(90));
-    private final Pose lineup = new Pose(40, 11, Math.toRadians(90));
-    private final Pose pickupPose = new Pose(14, 45, Math.toRadians(180));
-    private final Pose scorePose = new Pose(56, 12, Math.toRadians(90));
+    private final Pose lineup = new Pose(45, 14, Math.toRadians(90));
+    private final Pose pickupPose = new Pose(15, 14, Math.toRadians(180));
+    private final Pose scorePose = new Pose(56, 12, Math.toRadians(120));
 
 
     private PathChain driveToPickup, driveToScore, pickup;
@@ -52,7 +52,7 @@ public class AutoBlueLong extends OpMode {
         // Path 2: From Pickup back to Scoring Zone
         driveToScore = follower.pathBuilder()
                 .addPath(new BezierLine(pickupPose, scorePose))
-                .setConstantHeadingInterpolation(Math.toRadians(180))
+                .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0,() -> follower.setMaxPower(1))
                 .addParametricCallback(0.6, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0, () -> limelightController.toggleTracking())
@@ -61,21 +61,28 @@ public class AutoBlueLong extends OpMode {
 
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0: // SHOOT PRELOADS AT START
-                limelightController.toggleTracking(); // Turn on turret tracking
+            case 0:
+                limelightController.toggleTracking();
                 launchSystem.start(LaunchSystem.highVelocity, 800);
-                follower.setMaxPower(0.7);
+                follower.setMaxPower(1);
                 setPathState(1);
                 break;
 
-            case 1: // WAIT FOR FIRST LAUNCH TO FINISH
+            case 1:
                 if (launchSystem.update()) {
-
+                    limelightController.toggleTracking();
                     follower.followPath(driveToPickup);
                     launchSystem.fullStop();
-                    setPathState(-1);
+                    setPathState(2);
                 }
                 break;
+
+            case 2:
+                if (!follower.isBusy()){
+                    follower.followPath(pickup);
+
+                }
+
 
 
         }

@@ -14,7 +14,7 @@ public class LimelightController {
     private static final double ERROR_DEADBAND_DEGREES = 0.5;
     private static final double MAX_SERVO_SPEED = 1.0;
 
-    private static final double MOUNT_ANGLE_DEG = 19.5;
+    private static final double MOUNT_ANGLE_DEG = 19.;
     private static final double LENS_HEIGHT_INCHES = 15.0;
     private static final double GOAL_HEIGHT_INCHES = 28.75;
 

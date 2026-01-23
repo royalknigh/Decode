@@ -77,7 +77,8 @@ public class AutoRed extends OpMode {
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(90, 60), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0, ()-> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.7, () -> {
                     launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })
@@ -92,7 +93,8 @@ public class AutoRed extends OpMode {
 
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0, ()-> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.8, () -> {
                     launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
                 })

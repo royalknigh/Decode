@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
 import org.firstinspires.ftc.teamcode.configs.ServoConfig;
+import org.firstinspires.ftc.teamcode.noncomp.tele.Tele;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Auto Blue Long", group = "Autonomous")
@@ -26,52 +27,58 @@ public class AutoBlueLong extends OpMode {
 
     private int pathState = 0;
 
-    // --- POSES FROM IMAGE ---
-    private final Pose startPose = new Pose(56, 10, Math.toRadians(90));
-    private final Pose lineup = new Pose(45, 14, Math.toRadians(90));
-    private final Pose pickupPose = new Pose(15, 14, Math.toRadians(180));
-    private final Pose scorePose = new Pose(56, 12, Math.toRadians(120));
+    private final Pose startPose = new Pose(50, 7, Math.toRadians(90));
+    private final Pose lineup = new Pose(43, 42, Math.toRadians(180));
+    private final Pose leavePose = new Pose(37, 12, Math.toRadians(90));
+    private final Pose pickupPose = new Pose(16, 42, Math.toRadians(180));
+    private final Pose scorePose = new Pose(55, 12, Math.toRadians(120));
 
-
-    private PathChain driveToPickup, driveToScore, pickup;
+//    private PathChain driveToPickup, driveToScore, pickup;
+    private PathChain scorePreload, alignRow, pickupRow, score, leave;
 
     public void buildPaths() {
-        // Path 1: From Start to Pickup (Intaking while moving)
-        driveToPickup = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, lineup))
+        scorePreload = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, scorePose))
+                .addParametricCallback(0,() -> follower.setMaxPower(1))
+                .addParametricCallback(0.1, () -> launchSystem.start(LaunchSystem.highVelocity, 800))
                 .addParametricCallback(0, () -> limelightController.toggleTracking())
-                .setLinearHeadingInterpolation(startPose.getHeading(), lineup.getHeading())
+                .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
-        pickup = follower.pathBuilder()
+        alignRow = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, lineup))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), lineup.getHeading())
+                .build();
+        pickupRow = follower.pathBuilder()
                 .addPath(new BezierLine(lineup, pickupPose))
                 .setLinearHeadingInterpolation(lineup.getHeading(), pickupPose.getHeading())
-                .addParametricCallback(0,() -> follower.setMaxPower(0.5))
-                .addParametricCallback(0, ()-> motorConfig.intakeMotor.setPower(1))
+                .build();
+        score = follower.pathBuilder()
+                .addPath(new BezierLine(pickupPose, scorePose))
+                .addParametricCallback(0,() -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.highVelocity, 800))
+                .addParametricCallback(0.4, () -> limelightController.toggleTracking())
+                .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
+                .build();
+        leave = follower.pathBuilder()
+                .addPath(new BezierLine(scorePose, leavePose))
+                .setLinearHeadingInterpolation(scorePose.getHeading(), leavePose.getHeading())
                 .build();
 
-        // Path 2: From Pickup back to Scoring Zone
-        driveToScore = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPose, scorePose))
-                .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0,() -> follower.setMaxPower(1))
-                .addParametricCallback(0.6, () -> motorConfig.intakeMotor.setPower(0))
-                .addParametricCallback(0, () -> limelightController.toggleTracking())
-                .build();
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                limelightController.toggleTracking();
-                launchSystem.start(LaunchSystem.highVelocity, 800);
-                follower.setMaxPower(1);
+                follower.followPath(scorePreload);
+                follower.setMaxPower(0.8);
                 setPathState(1);
                 break;
 
             case 1:
-                if (launchSystem.update()) {
+                if (!follower.isBusy()&&launchSystem.update()) {
                     limelightController.toggleTracking();
-                    follower.followPath(driveToPickup);
+                    follower.setMaxPower(0.8);
+                    follower.followPath(alignRow);
                     launchSystem.fullStop();
                     setPathState(2);
                 }
@@ -79,10 +86,27 @@ public class AutoBlueLong extends OpMode {
 
             case 2:
                 if (!follower.isBusy()){
-                    follower.followPath(pickup);
-
+                    follower.followPath(pickupRow);
+                    motorConfig.intakeMotor.setPower(0.9);
+                    follower.setMaxPower(0.4);
+                    setPathState(3);
                 }
-
+                break;
+            case 3:
+                if (!follower.isBusy()){
+                    follower.followPath(score);
+                    motorConfig.intakeMotor.setPower(0);
+                    follower.setMaxPower(0.8);
+                    setPathState(4);
+                }
+                break;
+            case 4:
+                if(!follower.isBusy()&&launchSystem.update()){
+                    limelightController.toggleTracking();
+                    launchSystem.fullStop();
+                    follower.followPath(leave);
+                    setPathState(-1);
+                }
 
 
         }
@@ -120,6 +144,10 @@ public class AutoBlueLong extends OpMode {
         telemetry.addData("Path State", pathState);
         telemetry.addData("Flywheel Vel", motorConfig.launchMotor1.getVelocity());
         telemetry.update();
+    }
+
+    @Override public void init_loop() {
+        motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
     }
 
     @Override public void start() { setPathState(0); }

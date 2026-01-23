@@ -39,9 +39,9 @@ public class AutoBlue extends OpMode {
     private final Pose pickup1Pose = new Pose(19, 81, Math.toRadians(180));
 //    private final Pose openGatePose = new Pose(13, 68, Math.toRadians(90));
     private final Pose secondLinePose = new Pose(48, 58, Math.toRadians(180));
-    private final Pose pickup2Pose = new Pose(10, 58, Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(9, 58, Math.toRadians(180));
     private final Pose thirdLinePose = new Pose(48, 34, Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(10, 34, Math.toRadians(180));
+    private final Pose pickup3Pose = new Pose(9, 34, Math.toRadians(180));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2,
             openGate, score2, alignRow3, pickupRow3, score3, park;
@@ -66,7 +66,7 @@ public class AutoBlue extends OpMode {
         score1 = follower.pathBuilder().addPath(new BezierLine(pickup1Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.8))
-                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.2, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.4, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
@@ -82,7 +82,7 @@ public class AutoBlue extends OpMode {
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(48, 55), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.5, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
@@ -98,7 +98,7 @@ public class AutoBlue extends OpMode {
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.6, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.6, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();

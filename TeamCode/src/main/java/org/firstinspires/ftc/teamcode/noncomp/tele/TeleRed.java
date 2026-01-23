@@ -96,6 +96,9 @@ public class TeleRed extends OpMode {
                     launchSystem.start(LaunchSystem.lowVelocity, lowTime);
                     state = State.LAUNCH;
                 }
+                if (gamepad1.right_trigger > 0.1) {
+                    state = State.EJECT;
+                }
                 break;
 
             case INTAKE:
@@ -120,9 +123,13 @@ public class TeleRed extends OpMode {
                 }
                 break;
             case EJECT:
-                if(gamepad1.right_trigger>0.2) motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
-                servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
-
+                if (gamepad1.right_trigger > 0.1) {
+                    motorConfig.intakeMotor.setPower(-gamepad1.right_trigger);
+                    servoConfig.launchServo.setPosition(ServoConstants.launch_INIT);
+                } else {
+                    state = State.INIT;
+                    motorConfig.intakeMotor.setPower(0);
+                }
         }
     }
 
@@ -131,7 +138,7 @@ public class TeleRed extends OpMode {
         if (x < 90) {
             hoodPosition = -0.006 * x + 0.946667;
         } else {
-            hoodPosition = 0.99;
+            hoodPosition = 0.95;
         }
 
         if(gamepad1.dpad_up) hoodPosition += 0.002;

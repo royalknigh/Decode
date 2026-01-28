@@ -22,14 +22,14 @@ public class Tele extends OpMode {
 
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
 
-    private enum State {INIT, INTAKE, LAUNCH, EJECT}
+    private enum State {INIT, INTAKE, LAUNCH, EJECT, LAUNCHINTAKE}
     private State state;
     private boolean lastB = false;
     private boolean lastA = false;
     private double hoodPosition = 0.5;
 
-    public static int lowTime= 600;
-    public static int highTime =800;
+    public static int lowTime= 300;
+    public static int highTime =400;
     public static double P = 40.0;
     public static double F = 15.1;
 
@@ -102,6 +102,10 @@ public class Tele extends OpMode {
                     state = State.EJECT;
 
                 }
+                if(gamepad1.bWasPressed()){
+                    launchSystem.start(LaunchSystem.lowVelocity, lowTime);
+                    state = State.LAUNCHINTAKE;
+                }
                 break;
 
             case INTAKE:
@@ -122,6 +126,10 @@ public class Tele extends OpMode {
                     motorConfig.intakeMotor.setPower(0);
                     state = State.EJECT;
                 }
+                if(gamepad1.bWasPressed()){
+                    launchSystem.start(LaunchSystem.lowVelocity, lowTime);
+                    state = State.LAUNCHINTAKE;
+                }
                 break;
 
             case LAUNCH:
@@ -137,7 +145,11 @@ public class Tele extends OpMode {
                     state = State.INIT;
                     motorConfig.intakeMotor.setPower(0);
                 }
-
+            case LAUNCHINTAKE:
+                if (launchSystem.launchIntake()) {
+                    state = State.INIT;
+                }
+                break;
         }
     }
 

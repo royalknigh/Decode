@@ -67,6 +67,20 @@ public class LaunchSystem {
         setDualVelocity(900.0);
     }
 
+    public boolean launchIntake(){
+        if (!isLaunching) return true;
+
+        updatePIDF();
+
+        motorConfig.intakeMotor.setPower(1);
+        if(launchTimer.milliseconds() >= 5000){
+            motorConfig.intakeMotor.setPower(0);
+            idle();
+            return true;
+        }
+        return false;
+    }
+
     public boolean update() {
         if (!isLaunching) return true;
 

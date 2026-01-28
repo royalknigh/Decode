@@ -9,6 +9,7 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
@@ -31,7 +32,7 @@ public class AutoBlue extends OpMode {
     private int pathState = 0;
     private boolean lastB = false;
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
-
+    private boolean calibrated = false;
     // Blue Side Poses
     private final Pose startPose = new Pose(27, 117, Math.toRadians(140));
     private final Pose scorePose = new Pose(57, 95, Math.toRadians(150));
@@ -67,8 +68,8 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.8))
                 .addParametricCallback(0.2, () -> motorConfig.intakeMotor.setPower(0))
-                .addParametricCallback(0.4, () -> limelightController.toggleTracking())
-                .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.4, () -> limelightController.toggleTracking()) //0.4
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
         alignRow2 = follower.pathBuilder().addPath(new BezierLine(scorePose, secondLinePose))
@@ -83,8 +84,8 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
                 .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
-                .addParametricCallback(0.5, () -> limelightController.toggleTracking())
-                .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.5, () -> limelightController.toggleTracking()) //0.5
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
         alignRow3 = follower.pathBuilder().addPath(new BezierLine(scorePose, thirdLinePose))
@@ -99,8 +100,8 @@ public class AutoBlue extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
                 .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
-                .addParametricCallback(0.6, () -> limelightController.toggleTracking())
-                .addParametricCallback(0.6, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.6, () -> limelightController.toggleTracking()) //0.6
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
                 .build();
 
         park = follower.pathBuilder()
@@ -221,8 +222,24 @@ public class AutoBlue extends OpMode {
 
         telemetry.addData("Path State", pathState);
         telemetry.addData("Follower Busy", follower.isBusy());
+        telemetry.addData("Calibrating: ", calibrated);
         telemetry.update();
     }
+
+//    private boolean calibrateTurret(){
+//        if(!calibrated) {
+//            servoConfig.leftTurretServo.setPower(1);
+//            servoConfig.rightTurretServo.setPower(1);
+//            calibrated=true;
+//        }
+//        else {
+//            servoConfig.leftTurretServo.setPower(0);
+//            servoConfig.rightTurretServo.setPower(0);
+//            calibrated=false;
+//        }
+//        return calibrated;
+//    }
+
 
     private void handleHood() {
         double dist = limelightController.getDistance();

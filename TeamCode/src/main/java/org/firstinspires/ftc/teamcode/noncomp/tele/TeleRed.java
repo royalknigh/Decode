@@ -26,8 +26,8 @@ public class TeleRed extends OpMode {
     private boolean lastA = false;
     private double hoodPosition = 0.5;
 
-    public static int lowTime= 600;
-    public static int highTime =800;
+    public static int lowTime= 300;
+    public static int highTime =400;
 
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;

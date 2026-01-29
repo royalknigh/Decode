@@ -11,7 +11,7 @@ public class LimelightController {
     // Adjusted constants for better physical response
     private static double TARGET_X_OFFSET =0;
     private static final double TURRET_KP = 0.015; // Increased from 0.01 for more "kick"
-    private static final double ERROR_DEADBAND_DEGREES = 0.5;
+    private static final double ERROR_DEADBAND_DEGREES = 0.25;
     private static final double MAX_SERVO_SPEED = 1.0;
 
     private static final double MOUNT_ANGLE_DEG = 19.;
@@ -23,17 +23,11 @@ public class LimelightController {
     public LimelightController(Limelight3A limelight, ServoConfig servoConfig) {
         this.limelight = limelight;
         this.servoConfig = servoConfig;
-        limelight.pipelineSwitch(5); // Default Blue
+
         limelight.start();
     }
 
-    public void setAlliance(Alliance alliance) {
-        if (alliance == Alliance.BLUE) {
-            limelight.pipelineSwitch(5);
-        } else {
-            limelight.pipelineSwitch(6);
-        }
-    }
+
 
     public void toggleTracking() {
         isTrackingEnabled = !isTrackingEnabled;
@@ -80,6 +74,10 @@ public class LimelightController {
             return (0.0011 * Math.pow(rawDist, 2)) + (0.64 * rawDist) + 11.5;
         }
         return -1;
+    }
+
+    public Limelight3A getLimelight() {
+        return limelight;
     }
 
     public LLResult getLatestResult() {

@@ -26,10 +26,12 @@ public class Tele extends OpMode {
     private State state;
     private boolean lastB = false;
     private boolean lastA = false;
-    private double hoodPosition = 0.5;
+    public static double hoodPosition = 0.5;
+
+    public static boolean manual;
 
     public static int lowTime= 300;
-    public static int highTime =400;
+    public static int highTime =500;
     public static double P = 40.0;
     public static double F = 15.1;
 
@@ -40,11 +42,12 @@ public class Tele extends OpMode {
 
     @Override
     public void init() {
+        manual = false;
         motorConfig = new MotorConfig(hardwareMap);
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
-        limelightController.setAlliance(LimelightController.Alliance.BLUE);
+        limelightController.getLimelight().pipelineSwitch(5);
         servoConfig.setInitPos();
         state = State.INIT;
     }
@@ -70,6 +73,7 @@ public class Tele extends OpMode {
         telemetry.addData("State", state);
         telemetry.addData("Velocity", motorConfig.launchMotor1.getVelocity());
         telemetry.addData("Distance", limelightController.getDistance());
+        telemetry.addData("Hood position", hoodPosition);
         telemetry.addData("alliance ", alliance);
         telemetry.update();
     }
@@ -153,17 +157,19 @@ public class Tele extends OpMode {
         }
     }
 
-    private void handleHood() {
-        double x = limelightController.getDistance();
-        if (x < 90) {
-            hoodPosition = -0.006 * x + 0.946667;
-        } else {
-            hoodPosition = 0.95;
+    public void handleHood() {
+        if(!manual) {
+            double x = limelightController.getDistance();
+            if (x < 90) {
+                hoodPosition = -0.005 * x+ 1.02667;
+            } else {
+                hoodPosition = 0.98;
+            }
         }
-
-        if(gamepad1.dpad_up) hoodPosition += 0.002;
-        if(gamepad1.dpad_down) hoodPosition -= 0.002;
-
+        else {
+            if (gamepad1.dpad_up) hoodPosition += 0.002;
+            if (gamepad1.dpad_down) hoodPosition -= 0.002;
+        }
         hoodPosition = Range.clip(hoodPosition, 0, 0.98);
         servoConfig.hoodServo.setPosition(hoodPosition);
     }

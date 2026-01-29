@@ -8,11 +8,13 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.configs.LaunchSystem;
 import org.firstinspires.ftc.teamcode.configs.LimelightController;
 import org.firstinspires.ftc.teamcode.configs.MotorConfig;
 import org.firstinspires.ftc.teamcode.configs.ServoConfig;
+import org.firstinspires.ftc.teamcode.noncomp.tele.Tele;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous(name = "Auto Red Long", group = "Autonomous")
@@ -23,13 +25,15 @@ public class AutoRedLong extends OpMode {
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private LaunchSystem launchSystem;
+    private Tele teleOp;
 
     private int pathState = 0;
+    private int interval = 550;
 
     // --- POSES FROM IMAGE ---
     private final Pose startPose = new Pose(94, 7, Math.toRadians(90));
     private final Pose lineup = new Pose(98, 42, Math.toRadians(0));
-    private final Pose pickupPose = new Pose(123, 42, Math.toRadians(0));
+    private final Pose pickupPose = new Pose(125, 42, Math.toRadians(0));
     private final Pose leavePose = new Pose(107, 12, Math.toRadians(90));
     private final Pose scorePose = new Pose(89, 12, Math.toRadians(70));
 
@@ -40,8 +44,8 @@ public class AutoRedLong extends OpMode {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .addParametricCallback(0,() -> follower.setMaxPower(1))
-                .addParametricCallback(0.1, () -> launchSystem.start(LaunchSystem.highVelocity, 800))
                 .addParametricCallback(0, () -> limelightController.toggleTracking())
+                .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.highVelocity, interval))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
                 .build();
         alignRow = follower.pathBuilder()
@@ -54,9 +58,9 @@ public class AutoRedLong extends OpMode {
                 .build();
         score = follower.pathBuilder()
                 .addPath(new BezierLine(pickupPose, scorePose))
-                .addParametricCallback(0,() -> follower.setMaxPower(0.8))
-                .addParametricCallback(0.5, () -> launchSystem.start(LaunchSystem.highVelocity, 800))
-                .addParametricCallback(0.6, () -> limelightController.toggleTracking())
+                .addParametricCallback(0, () -> follower.setMaxPower(0.8))
+                .addParametricCallback(0.3, () -> limelightController.toggleTracking())
+                .addParametricCallback(0.9, () -> launchSystem.start(LaunchSystem.highVelocity, interval))
                 .setLinearHeadingInterpolation(pickupPose.getHeading(), scorePose.getHeading())
                 .build();
         leave = follower.pathBuilder()
@@ -87,7 +91,7 @@ public class AutoRedLong extends OpMode {
             case 2:
                 if (!follower.isBusy()){
                     follower.followPath(pickupRow);
-                    motorConfig.intakeMotor.setPower(0.9);
+                    motorConfig.intakeMotor.setPower(0.8);
                     follower.setMaxPower(0.4);
                     setPathState(3);
                 }
@@ -124,8 +128,9 @@ public class AutoRedLong extends OpMode {
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
+        limelightController.getLimelight().pipelineSwitch(7);
 
-        limelightController.setAlliance(LimelightController.Alliance.RED);
+
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
@@ -135,7 +140,7 @@ public class AutoRedLong extends OpMode {
     public void loop() {
         follower.update();
         limelightController.updateTracking();
-
+        handleHood();
         // Always call update to handle the launcher state machine
         launchSystem.update();
 
@@ -150,5 +155,24 @@ public class AutoRedLong extends OpMode {
         motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
     }
 
-    @Override public void start() { setPathState(0); }
+    @Override public void start() {
+        setPathState(0);
+        launchSystem.setDualVelocity(900);
+    }
+
+    public void handleHood() {
+        double x = limelightController.getDistance();
+        double hoodPosition;
+        if (x < 90) {
+            hoodPosition = -0.005 * x + 1.02667;
+        } else {
+            hoodPosition = 0.98;
+        }
+
+        if(gamepad1.dpad_up) hoodPosition += 0.002;
+        if(gamepad1.dpad_down) hoodPosition -= 0.002;
+
+        hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+        servoConfig.hoodServo.setPosition(hoodPosition);
+    }
 }

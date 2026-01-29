@@ -27,14 +27,16 @@ public class AutoRed extends OpMode {
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private LaunchSystem launchSystem;
+    private Tele teleOp;
 
     private int pathState = 0;
+    private int interval = 400;
     private boolean lastB = false;
     public static LimelightController.Alliance alliance = LimelightController.Alliance.RED;
 
     // Mirrored Red Poses
     private final Pose startPose = new Pose(117, 120, Math.toRadians(37));
-    private final Pose scorePose = new Pose(87, 95, Math.toRadians(30));
+    private final Pose scorePose = new Pose(85, 89, Math.toRadians(30));
     private final Pose fisrtLinePose = new Pose(96, 82, Math.toRadians(0));
     private final Pose pickup1Pose = new Pose(124, 82, Math.toRadians(0));
     private final Pose secondLinePose = new Pose(96, 59, Math.toRadians(0));
@@ -50,7 +52,7 @@ public class AutoRed extends OpMode {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0.1, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.3, () -> launchSystem.start(LaunchSystem.lowVelocity, interval))
                 .build();
 
         alignRow1 = follower.pathBuilder().addPath(new BezierLine(scorePose, fisrtLinePose))
@@ -62,11 +64,12 @@ public class AutoRed extends OpMode {
         // Score 1: Intake outtake early, spin up launcher mid-path
         score1 = follower.pathBuilder().addPath(new BezierLine(pickup1Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0.4, () -> {
-                    motorConfig.intakeMotor.setPower(0.5);
-                    launchSystem.start(LaunchSystem.lowVelocity, 800);
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.8))
+                .addParametricCallback(0.3, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.3, () -> limelightController.toggleTracking())
+                .addParametricCallback(0.5, () -> {
+                    launchSystem.start(LaunchSystem.lowVelocity, interval);
                 })
-                .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
                 .build();
 
         alignRow2 = follower.pathBuilder().addPath(new BezierLine(scorePose, secondLinePose))
@@ -78,9 +81,10 @@ public class AutoRed extends OpMode {
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(90, 60), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.3, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.6, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.7, () -> {
-                    launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
+                    launchSystem.start(LaunchSystem.lowVelocity, interval);
                 })
                 .addParametricCallback(0.8, () -> motorConfig.intakeMotor.setPower(0))
                 .build();
@@ -94,13 +98,14 @@ public class AutoRed extends OpMode {
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.2, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.8, () -> limelightController.toggleTracking())
                 .addParametricCallback(0.8, () -> {
-                    launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime);
+                    launchSystem.start(LaunchSystem.lowVelocity, interval);
                 })
                 .build();
         park = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, fisrtLinePose))
+                .addPath(new BezierLine(scorePose, secondLinePose))
                 .setConstantHeadingInterpolation(scorePose.getHeading())
                 .build();
     }
@@ -131,7 +136,6 @@ public class AutoRed extends OpMode {
         if (!follower.isBusy()) {
             follower.setMaxPower(1.0);
             follower.followPath(scorePath);
-            limelightController.toggleTracking(); // Start Limelight tracking while driving back
             setPathState(nextState);
         }
     }
@@ -189,8 +193,8 @@ public class AutoRed extends OpMode {
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
+        limelightController.getLimelight().pipelineSwitch(6);
         follower = Constants.createFollower(hardwareMap);
-        limelightController.setAlliance(LimelightController.Alliance.RED);
         follower.setStartingPose(startPose);
         buildPaths();
     }
@@ -203,15 +207,12 @@ public class AutoRed extends OpMode {
         telemetry.update();
     }
 
-    @Override
-    public void start() {
-        setPathState(0);
-    }
 
     @Override
     public void loop() {
         follower.update();
         limelightController.updateTracking();
+
         handleHood();
 
         // Essential: keeps the LaunchSystem state machine running
@@ -224,10 +225,24 @@ public class AutoRed extends OpMode {
         telemetry.update();
     }
 
-    private void handleHood() {
-        double dist = limelightController.getDistance();
-        // Equation for hood angle based on Limelight distance
-        double pos = (dist < 90) ? (0.000235 * dist * dist - 0.03207 * dist + 1.7471) : 0.95;
-        servoConfig.hoodServo.setPosition(Range.clip(pos, 0, 1));
+    @Override public void start() {
+        setPathState(0);
+        launchSystem.setDualVelocity(900);
+    }
+
+    public void handleHood() {
+        double x = limelightController.getDistance();
+        double hoodPosition;
+        if (x < 90) {
+            hoodPosition = -0.005 * x + 1.02667;
+        } else {
+            hoodPosition = 0.95;
+        }
+
+        if(gamepad1.dpad_up) hoodPosition += 0.002;
+        if(gamepad1.dpad_down) hoodPosition -= 0.002;
+
+        hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+        servoConfig.hoodServo.setPosition(hoodPosition);
     }
 }

@@ -40,7 +40,7 @@ public class TeleRed extends OpMode {
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
-        limelightController.setAlliance(LimelightController.Alliance.RED);
+        limelightController.getLimelight().pipelineSwitch(6);
         servoConfig.setInitPos();
         state = State.INIT;
     }
@@ -136,7 +136,7 @@ public class TeleRed extends OpMode {
     private void handleHood() {
         double x = limelightController.getDistance();
         if (x < 90) {
-            hoodPosition = -0.006 * x + 0.946667;
+            hoodPosition = -0.005 * x + 1.02667;
         } else {
             hoodPosition = 0.95;
         }

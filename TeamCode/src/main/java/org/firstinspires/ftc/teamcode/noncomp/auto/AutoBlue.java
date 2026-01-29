@@ -28,21 +28,23 @@ public class AutoBlue extends OpMode {
     private MotorConfig motorConfig;
     private ServoConfig servoConfig;
     private LaunchSystem launchSystem;
+    private Tele teleOp;
 
     private int pathState = 0;
+    private int interval = 400;
     private boolean lastB = false;
     public static LimelightController.Alliance alliance = LimelightController.Alliance.BLUE;
     private boolean calibrated = false;
     // Blue Side Poses
     private final Pose startPose = new Pose(27, 117, Math.toRadians(140));
-    private final Pose scorePose = new Pose(57, 95, Math.toRadians(150));
-    private final Pose fisrtLinePose = new Pose(48, 81, Math.toRadians(180));
-    private final Pose pickup1Pose = new Pose(19, 81, Math.toRadians(180));
+    private final Pose scorePose = new Pose(60, 85, Math.toRadians(140));
+    private final Pose fisrtLinePose = new Pose(48, 80, Math.toRadians(180));
+    private final Pose pickup1Pose = new Pose(20, 80, Math.toRadians(180));
 //    private final Pose openGatePose = new Pose(13, 68, Math.toRadians(90));
     private final Pose secondLinePose = new Pose(48, 58, Math.toRadians(180));
-    private final Pose pickup2Pose = new Pose(9, 58, Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(10, 58, Math.toRadians(180));
     private final Pose thirdLinePose = new Pose(48, 34, Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(9, 34, Math.toRadians(180));
+    private final Pose pickup3Pose = new Pose(10, 34, Math.toRadians(180));
 
     private PathChain scorePreload, alignRow1, pickupRow1, score1, alignRow2, pickupRow2,
             openGate, score2, alignRow3, pickupRow3, score3, park;
@@ -51,7 +53,7 @@ public class AutoBlue extends OpMode {
         scorePreload = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, scorePose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.lowVelocity, 800))
+                .addParametricCallback(0.4, () -> launchSystem.start(LaunchSystem.lowVelocity, interval))
                 .build();
 
 //        openGate = follower.pathBuilder()
@@ -69,7 +71,7 @@ public class AutoBlue extends OpMode {
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.8))
                 .addParametricCallback(0.2, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.4, () -> limelightController.toggleTracking()) //0.4
-                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, interval))
                 .build();
 
         alignRow2 = follower.pathBuilder().addPath(new BezierLine(scorePose, secondLinePose))
@@ -82,10 +84,10 @@ public class AutoBlue extends OpMode {
 
         score2 = follower.pathBuilder().addPath(new BezierCurve(pickup2Pose, new Pose(48, 55), scorePose))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
-                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.6))
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.5, () -> limelightController.toggleTracking()) //0.5
-                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, interval))
                 .build();
 
         alignRow3 = follower.pathBuilder().addPath(new BezierLine(scorePose, thirdLinePose))
@@ -99,13 +101,13 @@ public class AutoBlue extends OpMode {
         score3 = follower.pathBuilder().addPath(new BezierLine(pickup3Pose, scorePose))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
                 .addParametricCallback(0, () -> motorConfig.intakeMotor.setPower(0.7))
-                .addParametricCallback(0.05, () -> motorConfig.intakeMotor.setPower(0))
+                .addParametricCallback(0.1, () -> motorConfig.intakeMotor.setPower(0))
                 .addParametricCallback(0.6, () -> limelightController.toggleTracking()) //0.6
-                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, Tele.lowTime))
+                .addParametricCallback(0.8, () -> launchSystem.start(LaunchSystem.lowVelocity, interval))
                 .build();
 
         park = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, fisrtLinePose))
+                .addPath(new BezierLine(scorePose, secondLinePose))
                 .setConstantHeadingInterpolation(scorePose.getHeading())
                 .build();
     }
@@ -199,7 +201,7 @@ public class AutoBlue extends OpMode {
         servoConfig = new ServoConfig(hardwareMap);
         launchSystem = new LaunchSystem(motorConfig, servoConfig);
         limelightController = new LimelightController(hardwareMap.get(Limelight3A.class, "limelight"), servoConfig);
-
+        limelightController.getLimelight().pipelineSwitch(5);
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -241,14 +243,34 @@ public class AutoBlue extends OpMode {
 //    }
 
 
-    private void handleHood() {
-        double dist = limelightController.getDistance();
-        double pos = (dist < 90) ? (0.000235 * dist * dist - 0.03207 * dist + 1.7471) : 0.98;
+    /*private void handleHood() {
+        double x = limelightController.getDistance();
+        double pos = -0.006 * x + 0.946667;
         servoConfig.hoodServo.setPosition(Range.clip(pos, 0, 1));
+    }*/
+
+    public void handleHood() {
+        double x = limelightController.getDistance();
+        double hoodPosition;
+        if (x < 90) {
+            hoodPosition = -0.005 * x + 1.02667;//new
+//            hoodPosition = -0.006 * x + 0.946667;//old
+        } else {
+            hoodPosition = 0.95;
+        }
+
+        if(gamepad1.dpad_up) hoodPosition += 0.002;
+        if(gamepad1.dpad_down) hoodPosition -= 0.002;
+
+        hoodPosition = Range.clip(hoodPosition, 0, 0.98);
+        servoConfig.hoodServo.setPosition(hoodPosition);
     }
 
     @Override public void init_loop() {
         motorConfig.intakeMotor.setPower(gamepad1.left_trigger);
     }
-    @Override public void start() { setPathState(0); }
+    @Override public void start() {
+        setPathState(0);
+        launchSystem.setDualVelocity(900);
+    }
 }

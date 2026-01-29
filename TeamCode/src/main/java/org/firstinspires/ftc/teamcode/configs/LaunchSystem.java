@@ -23,8 +23,9 @@ public class LaunchSystem {
 
     public static double highVelocity = 1600.0;
     public static double lowVelocity = 1250.0;
+    public static double idleVelocity = 900;
     public static double activeIntervalMs = 600.0;
-    public static double prepDelayMs = 200.0;
+    public static double prepDelayMs = 350.0;  //250.0
 
     public LaunchSystem(MotorConfig motorConfig, ServoConfig servoConfig) {
         this.motorConfig = motorConfig;
@@ -38,6 +39,7 @@ public class LaunchSystem {
         lm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
+
         updatePIDF();
     }
 
@@ -46,7 +48,7 @@ public class LaunchSystem {
         lm2.setVelocityPIDFCoefficients(P, 0, 0, F);
     }
 
-    private void setDualVelocity(double velocity) {
+    public void setDualVelocity(double velocity) {
         lm1.setVelocity(velocity);
         lm2.setVelocity(velocity);
     }
@@ -64,7 +66,7 @@ public class LaunchSystem {
 
     public void idle() {
         isLaunching = false;
-        setDualVelocity(900.0);
+        setDualVelocity(idleVelocity);
     }
 
     public boolean launchIntake(){
